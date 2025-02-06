@@ -1491,42 +1491,90 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // 🔹 URL страницы загрузки на GitHub Pages
-  const DOWNLOAD_PAGE_URL = "https://89609630063.github.io/shifts-share/download.html";
+  let shifts = [];
 
+  // 🔹 Загружаем смены из localStorage при загрузке страницы
+  function loadShifts() {
+    const savedShifts = localStorage.getItem("shifts");
+    if (savedShifts) {
+      shifts = JSON.parse(savedShifts);
+      console.log("✅ Смены загружены из localStorage:", shifts);
+    }
+  }
+
+  // 🔹 Сохраняем смены в localStorage
+  function saveShifts() {
+    localStorage.setItem("shifts", JSON.stringify(shifts));
+    console.log("✅ Смены сохранены!");
+  }
+
+  // 🔹 Функция для добавления новой смены
+  function addShift(date, startTime, shiftType) {
+    shifts.push({ date, startTime, shiftType });
+    saveShifts();
+  }
+
+  // 🔹 Функция создания файла с данными смен
+  function generateFile() {
+    if (shifts.length === 0) {
+      alert('❌ Нет смен для сохранения!');
+      return null;
+    }
+
+    let fileContent = "📅 График смен\n\n";
+    fileContent += shifts.map(shift =>
+      `Дата: ${shift.date}\nВремя: ${shift.startTime}\nТип: ${shift.shiftType}\n---`
+    ).join("\n");
+
+    console.log("📦 Создаём файл со сменами:\n", fileContent);
+
+    return new Blob([fileContent], { type: "text/plain" });
+  }
+
+  // 🔹 Функция скачивания файла
   function downloadFile() {
+    const blob = generateFile();
+    if (!blob) return;
+
+    const fileURL = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = "https://89609630063.github.io/shifts-share/files/shifts.txt";
+    a.href = fileURL;
     a.download = "Мои_смены.txt";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    console.log("✅ Файл скачан с GitHub!");
+
+    console.log("✅ Файл успешно скачан!");
   }
 
+  // 🔹 Функция генерации QR-кода для скачивания файла
   function generateQRCode() {
-    qrContainer.innerHTML = ''; // Очищаем контейнер
+    const blob = generateFile();
+    if (!blob) return;
 
-    try {
-      new QRCode(qrContainer, {
-        text: DOWNLOAD_PAGE_URL,
-        width: 200,
-        height: 200
-      });
+    const fileURL = URL.createObjectURL(blob);
+    console.log("🔗 Ссылка на скачивание файла:", fileURL);
 
-      console.log("✅ QR-код сгенерирован!");
-      alert('QR-код готов! Жена может сканировать и скачать файл.');
-    } catch (error) {
-      console.error("❌ Ошибка генерации QR-кода:", error);
-      alert('❌ Ошибка при создании QR-кода.');
-    }
+    qrContainer.innerHTML = ''; // Очищаем контейнер перед созданием нового QR-кода
+
+    new QRCode(qrContainer, {
+      text: fileURL,
+      width: 200,
+      height: 200
+    });
+
+    console.log("✅ QR-код успешно создан!");
+    alert('QR-код готов! Сканируйте и скачивайте файл.');
   }
 
+  // Загружаем сохранённые смены при загрузке страницы
+  loadShifts();
+
+  // Подключаем кнопки
   downloadButton.addEventListener('click', downloadFile);
   shareButton.addEventListener('click', generateQRCode);
 });
 </script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
