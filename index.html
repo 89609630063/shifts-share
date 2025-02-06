@@ -806,10 +806,10 @@ input[type="file"] {
     const editRemindBefore = document.getElementById('editRemindBefore');
 
     document.addEventListener('DOMContentLoaded', () => {
-    loadShifts(); // ✅ Загружаем смены из localStorage при запуске
-    calendarControl.init(); // ✅ После этого отрисовываем календарь
-    
-    });
+      loadShifts();
+      renderShiftsTable();
+      highlightShiftsInCalendar(); // Вызываем после загрузки смен
+     });
 
     function saveShiftsToLocalStorage() {
       localStorage.setItem('shifts', JSON.stringify(shifts));
