@@ -8,24 +8,39 @@
 <body>
   <h2>Скачать файл с графиком смен</h2>
   <p>Нажмите кнопку ниже, чтобы скачать файл:</p>
-  <a id="downloadLink" href="files/shifts.txt" download="Мои_смены.txt">
-    <button>📥 Скачать смены</button>
-  </a>
+  <button id="downloadShifts">📥 Скачать смены</button>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Проверяем, есть ли файл
-      fetch("files/shifts.txt")
-        .then(response => {
-          if (response.ok) {
-            console.log("✅ Файл найден, можно скачать!");
-          } else {
-            document.body.innerHTML = "<h2>❌ Ошибка</h2><p>Файл не найден.</p>";
-          }
-        })
-        .catch(() => {
-          document.body.innerHTML = "<h2>❌ Ошибка</h2><p>Не удалось загрузить файл.</p>";
-        });
+      const button = document.getElementById("downloadShifts");
+
+      button.addEventListener("click", () => {
+        const shifts = JSON.parse(localStorage.getItem("shifts") || "[]");
+
+        if (shifts.length === 0) {
+          alert("❌ Нет смен для скачивания!");
+          return;
+        }
+
+        let fileContent = "📅 График смен\n\n";
+        fileContent += shifts.map(shift =>
+          `Дата: ${shift.date}\nТип: ${shift.shiftType === "night" ? "Ночная" : "Дневная"}\n---`
+        ).join("\n");
+
+        console.log("📦 Создаём файл перед скачиванием:\n", fileContent);
+
+        const blob = new Blob([fileContent], { type: "text/plain" });
+        const fileURL = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = fileURL;
+        a.download = "Мои_смены.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        console.log("✅ Файл успешно скачан!");
+      });
     });
   </script>
 </body>
