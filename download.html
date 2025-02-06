@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Скачать смены</title>
+</head>
+<body>
+  <h2>Скачать файл с графиком смен</h2>
+  <p>Нажмите кнопку ниже, чтобы скачать файл:</p>
+  <a id="downloadLink" href="files/shifts.txt" download="Мои_смены.txt">
+    <button>📥 Скачать смены</button>
+  </a>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Проверяем, есть ли файл
+      fetch("files/shifts.txt")
+        .then(response => {
+          if (response.ok) {
+            console.log("✅ Файл найден, можно скачать!");
+          } else {
+            document.body.innerHTML = "<h2>❌ Ошибка</h2><p>Файл не найден.</p>";
+          }
+        })
+        .catch(() => {
+          document.body.innerHTML = "<h2>❌ Ошибка</h2><p>Не удалось загрузить файл.</p>";
+        });
+    });
+  </script>
+</body>
+</html>
