@@ -16,32 +16,37 @@
       const shiftsParam = urlParams.get("shifts");
 
       if (!shiftsParam) {
-        document.body.innerHTML = "<h2>❌ Ошибка</h2><p>Нет смен для скачивания!</p>";
+        alert("❌ Нет смен для скачивания!");
         return;
       }
 
-      const shifts = JSON.parse(decodeURIComponent(shiftsParam));
+      try {
+        const shifts = JSON.parse(decodeURIComponent(shiftsParam));
 
-      document.getElementById("downloadShifts").addEventListener("click", () => {
-        let fileContent = "📅 График смен\n\n";
-        fileContent += shifts.map(shift =>
-          `Дата: ${shift.date}\nТип: ${shift.shiftType === "night" ? "Ночная" : "Дневная"}\n---`
-        ).join("\n");
+        document.getElementById("downloadShifts").addEventListener("click", () => {
+          let fileContent = "📅 График смен\n\n";
+          fileContent += shifts.map(shift =>
+            `Дата: ${shift.date}\nТип: ${shift.shiftType === "night" ? "Ночная" : "Дневная"}\n---`
+          ).join("\n");
 
-        console.log("📦 Создаём файл перед скачиванием:\n", fileContent);
+          console.log("📦 Создаём файл перед скачиванием:\n", fileContent);
 
-        const blob = new Blob([fileContent], { type: "text/plain" });
-        const fileURL = URL.createObjectURL(blob);
+          const blob = new Blob([fileContent], { type: "text/plain" });
+          const fileURL = URL.createObjectURL(blob);
 
-        const a = document.createElement("a");
-        a.href = fileURL;
-        a.download = "Мои_смены.txt";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+          const a = document.createElement("a");
+          a.href = fileURL;
+          a.download = "Мои_смены.txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
 
-        console.log("✅ Файл успешно скачан!");
-      });
+          console.log("✅ Файл успешно скачан!");
+        });
+      } catch (error) {
+        alert("❌ Ошибка при обработке смен!");
+        console.error("Ошибка при разборе JSON:", error);
+      }
     });
   </script>
 </body>
