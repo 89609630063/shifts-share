@@ -587,6 +587,17 @@ input[type="file"] {
   margin: 15px auto;
   border: 1px solid #ccc;
 }
+#qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#qr-container canvas {
+  max-width: 100%;
+  height: auto;
+}
 </style>
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1479,7 +1490,6 @@ function highlightShiftsInCalendar() {
   });
 });
 </script>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const downloadButton = document.getElementById('downloadShifts');
@@ -1508,9 +1518,20 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("✅ Смены сохранены!");
   }
 
+  // 🔹 Функция форматирования даты в `DD-MM-YYYY`
+  function formatDate(dateString) {
+    const [year, month, day] = dateString.split('-');
+    return `${day}-${month}-${year}`;
+  }
+
+  // 🔹 Функция перевода типа смены на русский
+  function translateShiftType(shiftType) {
+    return shiftType === "night" ? "Ночная" : "Дневная";
+  }
+
   // 🔹 Функция для добавления новой смены
-  function addShift(date, startTime, shiftType) {
-    shifts.push({ date, startTime, shiftType });
+  function addShift(date, shiftType) {
+    shifts.push({ date, shiftType });
     saveShifts();
   }
 
@@ -1523,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let fileContent = "📅 График смен\n\n";
     fileContent += shifts.map(shift =>
-      `Дата: ${shift.date}\nВремя: ${shift.startTime}\nТип: ${shift.shiftType}\n---`
+      `Дата: ${formatDate(shift.date)}\nТип: ${translateShiftType(shift.shiftType)}\n---`
     ).join("\n");
 
     console.log("📦 Создаём файл со сменами:\n", fileContent);
