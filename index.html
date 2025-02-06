@@ -1573,17 +1573,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 🔹 Функция генерации QR-кода для скачивания файла
 function generateQRCode() {
+  if (shifts.length === 0) {
+    alert('❌ Нет смен для передачи!');
+    return;
+  }
+
+  const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
+  const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
+
   qrContainer.innerHTML = ''; // Очищаем контейнер
 
-  const GITHUB_DOWNLOAD_PAGE = "https://89609630063.github.io/shifts-share/download.html";
-
   new QRCode(qrContainer, {
-    text: GITHUB_DOWNLOAD_PAGE, // ✅ Теперь QR-код ведёт на страницу скачивания
+    text: downloadLink,
     width: 200,
     height: 200
   });
 
-  console.log("✅ QR-код успешно создан!");
+  console.log("✅ QR-код сгенерирован, ведёт на:", downloadLink);
   alert('QR-код готов! Скачать файл.');
 }
 
