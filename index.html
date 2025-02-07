@@ -1689,10 +1689,18 @@ function updateShiftsFile() {
   // 🔹 Функция генерации QR-кода для скачивания файла
 // 🔹 Функция генерации QR-кода для скачивания файла
 function generateQRCode() {
-  loadShifts(); // ✅ Загружаем смены перед генерацией QR-кода
+  console.log("🔄 Попытка генерации QR-кода...");
+
+  if (typeof QRCode === "undefined") {
+    console.error("❌ Ошибка: библиотека QRCode не загружена!");
+    showCustomAlert("❌ Ошибка загрузки QR-кода.");
+    return;
+  }
+
+  loadShifts(); // Загружаем смены перед генерацией QR-кода
 
   if (!shifts || shifts.length === 0) {
-    showCustomAlert('❌ Нет смен для передачи!');
+    showCustomAlert("❌ Нет смен для передачи!");
     console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
     return;
   }
@@ -1700,27 +1708,24 @@ function generateQRCode() {
   const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
   const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
 
-  qrContainer.innerHTML = ''; // Очищаем контейнер
+  console.log("✅ Ссылка для QR-кода:", downloadLink);
 
-  new QRCode(qrContainer, {
-    text: downloadLink,
-    width: 200,
-    height: 200
-  });
+  qrContainer.innerHTML = ''; // Очищаем контейнер перед генерацией
 
-  console.log("✅ QR-код успешно создан:", downloadLink);
-  showCustomAlert('✅ QR-код готов! Скачать файл.');
-}
+  try {
+    console.log("🖼 Создаём QR-код...");
+    new QRCode(qrContainer, {
+      text: downloadLink,
+      width: 200,
+      height: 200
+    });
 
-// 🔹 Функция кастомного уведомления вместо alert()
-function showCustomAlert(message) {
-  const alertBox = document.getElementById("customAlert");
-  alertBox.textContent = message;
-  alertBox.classList.add("show");
-
-  setTimeout(() => {
-    alertBox.classList.remove("show");
-  }, 3000);
+    console.log("✅ QR-код успешно сгенерирован!");
+    showCustomAlert("✅ QR-код готов! Сканируйте и скачивайте файл.");
+  } catch (error) {
+    console.error("❌ Ошибка при генерации QR-кода:", error);
+    showCustomAlert("❌ Ошибка генерации QR-кода.");
+  }
 }
 
 // Загружаем сохранённые смены при загрузке страницы
@@ -1729,8 +1734,9 @@ loadShifts();
 // Подключаем кнопки
 downloadButton.addEventListener('click', downloadFile);
 shareButton.addEventListener('click', generateQRCode);
+
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
