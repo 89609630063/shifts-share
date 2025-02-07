@@ -1719,12 +1719,15 @@ async function saveShiftsToGitHub() {
         return null;
     }
 
-    // Кодируем смены в URL
-    const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
-    const githubFileUrl = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
+    // Создаём временный JSON-файл
+    const fileContent = JSON.stringify(shifts, null, 2);
+    const blob = new Blob([fileContent], { type: "application/json" });
 
-    console.log("✅ Смена передаётся по ссылке:", githubFileUrl);
-    return githubFileUrl;
+    // Генерируем временную ссылку
+    const fileUrl = URL.createObjectURL(blob);
+
+    console.log("✅ JSON-файл создан по ссылке:", fileUrl);
+    return fileUrl;
 }
 // 🔹 Функция генерации QR-кода для скачивания файла
 async function generateQRCode() {
@@ -1736,15 +1739,12 @@ async function generateQRCode() {
         return;
     }
 
-    if (!shifts || shifts.length === 0) {
-        showCustomAlert("❌ Нет смен для передачи!");
-        console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
+    const fileUrl = await saveShiftsToGitHub(); // Получаем короткую ссылку на shifts.json
+
+    if (!fileUrl) {
+        showCustomAlert("❌ Не удалось создать JSON-файл.");
         return;
     }
-
-    // Кодируем смены в URL
-    const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
-    const fileUrl = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
 
     console.log("✅ Ссылка для QR-кода:", fileUrl);
 
