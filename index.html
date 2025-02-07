@@ -803,7 +803,7 @@ input[type="file"] {
   <h2>Сохранить или поделиться сменами</h2>
   <button class="btn btn-share" id="downloadShifts">Скачать файл</button>
   <button class="btn btn-share" id="shareShifts">Поделится QR-код</button>
-  <div id="qr-container" style="margin-top: 10px; text-align: center;"></div>
+ <div id="qrContainer" style="margin-top: 10px; text-align: center;"></div>
 
 </div>
     <!-- Модальное окно для редактирования -->
@@ -1706,14 +1706,15 @@ function generateQRCode() {
   qrContainer.innerHTML = ''; // ✅ Очистка контейнера перед генерацией
 
   try {
+    const qrContainer = document.getElementById("qrContainer");
     new QRCode(qrContainer, {
-      text: downloadLink,
-      width: 200,
-      height: 200
-    });
+    text: downloadLink,
+    width: 200,
+    height: 200
+});
 
     console.log("✅ QR-код успешно сгенерирован!");
-    showCustomAlert("✅ QR-код готов! Сканируйте и скачивайте файл.");
+    showCustomAlert("✅ QR-код готов! Скачать файл.");
   } catch (error) {
     console.error("❌ Ошибка при генерации QR-кода:", error);
     showCustomAlert("❌ Ошибка генерации QR-кода.");
