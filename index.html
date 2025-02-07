@@ -1685,46 +1685,52 @@ function updateShiftsFile() {
 
   alert("✅ Файл shifts.txt сохранён! Загрузите его в GitHub.");
 }
-  // 🔹 Функция генерации QR-кода для скачивания файла
+
+// ✅ Функция для загрузки библиотеки QRCode.js, если её нет
+function loadQRCodeLibrary(callback) {
+    if (typeof QRCode !== "undefined") {
+        callback();
+        return;
+    }
+
+    console.log("🔄 Библиотека QRCode.js не загружена, загружаем...");
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+    script.onload = () => {
+        console.log("✅ QRCode.js загружен!");
+        callback();
+    };
+    script.onerror = () => alert("❌ Ошибка загрузки библиотеки QRCode!");
+    document.body.appendChild(script);
+}
+
 // 🔹 Функция генерации QR-кода для скачивания файла
 function generateQRCode() {
-  console.log("🔄 Попытка генерации QR-кода...");
+    console.log("🔄 Попытка генерации QR-кода...");
 
-  if (typeof QRCode === "undefined") {
-    console.error("❌ Ошибка: библиотека QRCode не загружена!");
-    showCustomAlert("❌ Ошибка загрузки QR-кода.");
-    return;
-  }
+    loadQRCodeLibrary(() => { // ✅ Загружаем библиотеку перед генерацией
+        if (!shifts || shifts.length === 0) {
+            showCustomAlert("❌ Нет смен для передачи!");
+            console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
+            return;
+        }
 
-  loadShifts(); // Загружаем смены перед генерацией QR-кода
+        const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
+        const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
 
-  if (!shifts || shifts.length === 0) {
-    showCustomAlert("❌ Нет смен для передачи!");
-    console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
-    return;
-  }
+        console.log("✅ Ссылка для QR-кода:", downloadLink);
 
-  const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
-  const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
+        qrContainer.innerHTML = ''; // Очищаем контейнер перед генерацией
 
-  console.log("✅ Ссылка для QR-кода:", downloadLink);
+        new QRCode(qrContainer, {
+            text: downloadLink,
+            width: 200,
+            height: 200
+        });
 
-  qrContainer.innerHTML = ''; // Очищаем контейнер перед генерацией
-
-  try {
-    console.log("🖼 Создаём QR-код...");
-    new QRCode(qrContainer, {
-      text: downloadLink,
-      width: 200,
-      height: 200
+        console.log("✅ QR-код успешно сгенерирован!");
+        showCustomAlert("✅ QR-код готов! Сканируйте и скачивайте файл.");
     });
-
-    console.log("✅ QR-код успешно сгенерирован!");
-    showCustomAlert("✅ QR-код готов! Сканируйте и скачивайте файл.");
-  } catch (error) {
-    console.error("❌ Ошибка при генерации QR-кода:", error);
-    showCustomAlert("❌ Ошибка генерации QR-кода.");
-  }
 }
 
 // Загружаем сохранённые смены при загрузке страницы
