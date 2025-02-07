@@ -1773,10 +1773,10 @@ async function generateQRCode() {
         return;
     }
 
-    const fileUrl = await saveShiftsToGoogleDrive(); // 🔹 Получаем ссылку на Google Drive
+    const fileUrl = "https://drive.google.com/uc?id=1C5B-zLXg_F3r3lHrQdYq4orIh3MYuR-E&export=download"; // ✅ Вставь свой ID
 
     if (!fileUrl) {
-        showCustomAlert("❌ Не удалось создать JSON-файл.");
+        showCustomAlert("❌ Ошибка: ссылка на shifts.json отсутствует.");
         return;
     }
 
