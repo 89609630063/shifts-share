@@ -643,6 +643,24 @@ input[type="file"] {
   padding: 10px;
 }
 </style>
+<style>
+#customAlert {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2196f3;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none;
+  text-align: center;
+}
+
+#customAlert.show {
+  display: block;
+}
+</style>
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -650,6 +668,7 @@ input[type="file"] {
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
 <body>
+  <div id="customAlert" class="hidden">📢 QR-код готов! Скачать файл.</div>
   <header>
     <h1>График смен</h1>
   </header>
@@ -1669,10 +1688,12 @@ function updateShiftsFile() {
 }
   // 🔹 Функция генерации QR-кода для скачивания файла
 function generateQRCode() {
-  loadShifts(); // ✅ Загружаем смены перед генерацией QR-кода
+  console.log("🔄 Попытка генерации QR-кода...");
+
+  loadShifts(); // Загружаем смены перед генерацией QR-кода
 
   if (!shifts || shifts.length === 0) {
-    alert('❌ Нет смен для передачи!');
+    showCustomAlert("❌ Нет смен для передачи!");
     console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
     return;
   }
@@ -1680,16 +1701,34 @@ function generateQRCode() {
   const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
   const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
 
-  qrContainer.innerHTML = ''; // Очищаем контейнер
+  console.log("✅ Ссылка для QR-кода:", downloadLink);
 
-  new QRCode(qrContainer, {
-    text: downloadLink,
-    width: 200,
-    height: 200
-  });
+  qrContainer.innerHTML = ''; // ✅ Очистка контейнера перед генерацией
 
-  console.log("✅ QR-код успешно создан:", downloadLink);
-  alert('QR-код готов! Сканируйте и скачивайте файл.');
+  try {
+    new QRCode(qrContainer, {
+      text: downloadLink,
+      width: 200,
+      height: 200
+    });
+
+    console.log("✅ QR-код успешно сгенерирован!");
+    showCustomAlert("✅ QR-код готов! Сканируйте и скачивайте файл.");
+  } catch (error) {
+    console.error("❌ Ошибка при генерации QR-кода:", error);
+    showCustomAlert("❌ Ошибка генерации QR-кода.");
+  }
+}
+
+// Функция для показа кастомного уведомления
+function showCustomAlert(message) {
+  const alertBox = document.getElementById("customAlert");
+  alertBox.textContent = message;
+  alertBox.classList.add("show");
+
+  setTimeout(() => {
+    alertBox.classList.remove("show");
+  }, 3000);
 }
   // Загружаем сохранённые смены при загрузке страницы
   loadShifts();
