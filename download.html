@@ -9,7 +9,7 @@
   <h2>Скачать файл с графиком смен</h2>
   <p>Нажмите кнопку ниже, чтобы скачать файл:</p>
   <button id="downloadShifts">📥 Скачать смены</button>
-
+  <div id="shiftList"></div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -50,28 +50,32 @@
     });
   </script>
   <script>
+  <script>
   document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const shiftsParam = urlParams.get("shifts");
+      const fileUrl = urlParams.get("file");
 
-      if (shiftsParam) {
-          try {
-              const shifts = JSON.parse(decodeURIComponent(shiftsParam));
-              console.log("✅ Смены загружены:", shifts);
-              
-              // Выводим смены на страницу
-              const output = document.getElementById("shiftList");
-              output.innerHTML = "<h3>📅 График смен:</h3>";
-              shifts.forEach(shift => {
-                  output.innerHTML += `<p>📅 ${shift.date} — ${shift.shiftType}</p>`;
+      if (fileUrl) {
+          fetch(fileUrl)
+              .then(response => response.json())
+              .then(shifts => {
+                  console.log("✅ Смены загружены:", shifts);
+
+                  // Выводим смены на страницу
+                  const output = document.getElementById("shiftList");
+                  output.innerHTML = "<h3>📅 График смен:</h3>";
+                  shifts.forEach(shift => {
+                      output.innerHTML += `<p>📅 ${shift.date} — ${shift.shiftType}</p>`;
+                  });
+              })
+              .catch(error => {
+                  console.error("❌ Ошибка загрузки смен:", error);
               });
-          } catch (error) {
-              console.error("❌ Ошибка при разборе смен:", error);
-          }
       } else {
-          console.warn("⚠️ В URL нет смен.");
+          console.warn("⚠️ В URL нет ссылки на JSON-файл.");
       }
   });
+</script>
 </script>
 </body>
 </html>
