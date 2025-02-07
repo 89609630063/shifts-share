@@ -1712,26 +1712,60 @@ function reloadQRCodeLib() {
     script.onerror = () => alert("❌ Ошибка загрузки QRCode.js!");
     document.body.appendChild(script);
 }
-async function saveShiftsToGitHub() {
+async function saveShiftsToGoogleDrive() {
     if (!shifts || shifts.length === 0) {
         showCustomAlert("❌ Нет смен для передачи!");
         console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
         return null;
     }
 
-    // Создаём временный JSON-файл
     const fileContent = JSON.stringify(shifts, null, 2);
     const blob = new Blob([fileContent], { type: "application/json" });
 
-    // Генерируем временную ссылку
-    const fileUrl = URL.createObjectURL(blob);
+    // Используем FileReader для преобразования в base64
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise((resolve, reject) => {
+        reader.onloadend = async function () {
+            const base64Data = reader.result.split(',')[1];
 
-    console.log("✅ JSON-файл создан по ссылке:", fileUrl);
-    return fileUrl;
+            // ⚠️ Вставь свой API-ключ Google Drive API!
+            const API_KEY = "YOUR_GOOGLE_DRIVE_API_KEY";
+            const FOLDER_ID = "1PF-9TvrzEQ2GspZ_rHv8H-XQ05azek1m"; // ID твоей папки
+
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&key=${API_KEY}`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${API_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            name: "shifts.json",
+                            mimeType: "application/json",
+                            parents: [FOLDER_ID]
+                        })
+                    }
+                );
+
+                const data = await response.json();
+                console.log("✅ Файл сохранён на Google Drive:", data);
+
+                // Создаём публичную ссылку на файл
+                const fileUrl = `https://drive.google.com/uc?id=${data.id}&export=download`;
+                resolve(fileUrl);
+            } catch (error) {
+                console.error("❌ Ошибка загрузки в Google Drive:", error);
+                reject(null);
+            }
+        };
+    });
 }
 // 🔹 Функция генерации QR-кода для скачивания файла
 async function generateQRCode() {
-    console.log("🔄 Попытка генерации QR-кода...");
+    console.log("🔄 Генерация QR-кода...");
 
     if (typeof QRCode === "undefined") {
         console.error("❌ Ошибка: библиотека QRCode.js не загружена!");
@@ -1739,7 +1773,7 @@ async function generateQRCode() {
         return;
     }
 
-    const fileUrl = await saveShiftsToGitHub(); // Получаем короткую ссылку на shifts.json
+    const fileUrl = await saveShiftsToGoogleDrive(); // 🔹 Получаем ссылку на Google Drive
 
     if (!fileUrl) {
         showCustomAlert("❌ Не удалось создать JSON-файл.");
