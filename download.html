@@ -49,33 +49,29 @@
       }
     });
   </script>
+  
   <script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const fileUrl = urlParams.get("file");
+  document.addEventListener("DOMContentLoaded", async () => {
+      const fileUrl = "https://drive.google.com/uc?id=1C5B-zLXg_F3r3lHrQdYq4orIh3MYuR-E&export=download"; // 🔹 Вставь правильную ссылку
 
-      if (fileUrl) {
-          fetch(fileUrl)
-              .then(response => response.json())
-              .then(shifts => {
-                  console.log("✅ Смены загружены:", shifts);
+      try {
+          const response = await fetch(fileUrl);
+          const shifts = await response.json();
 
-                  // Выводим смены на страницу
-                  const output = document.getElementById("shiftList");
-                  output.innerHTML = "<h3>📅 График смен:</h3>";
-                  shifts.forEach(shift => {
-                      output.innerHTML += `<p>📅 ${shift.date} — ${shift.shiftType}</p>`;
-                  });
-              })
-              .catch(error => {
-                  console.error("❌ Ошибка загрузки смен:", error);
-              });
-      } else {
-          console.warn("⚠️ В URL нет ссылки на JSON-файл.");
+          console.log("✅ Смены загружены:", shifts);
+
+          // Выводим смены на страницу
+          const output = document.getElementById("shiftList");
+          output.innerHTML = "<h3>📅 График смен:</h3>";
+          shifts.forEach(shift => {
+              output.innerHTML += `<p>📅 ${shift.date} — ${shift.shiftType}</p>`;
+          });
+      } catch (error) {
+          console.error("❌ Ошибка загрузки смен:", error);
       }
   });
-</script>
+
+
 </script>
 </body>
 </html>
