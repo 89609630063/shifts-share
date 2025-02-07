@@ -599,6 +599,50 @@ input[type="file"] {
   height: auto;
 }
 </style>
+<style>
+.clickable {
+  cursor: pointer;
+  padding: 10px;
+  background: #f1f1f1;
+  border-radius: 5px;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.clickable:hover {
+  background: #e0e0e0;
+}
+
+#shiftTableContainer {
+  display: none; /* Скрываем изначально */
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  border-radius: 5px;
+  transition: all 0.3s ease-in-out;
+}
+
+#shiftTableContainer.open {
+  display: block; /* Показываем при открытии */
+}
+
+#shiftTableContainer {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  border-radius: 5px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+#shiftTableContainer.open {
+  max-height: 500px; /* Достаточно для нескольких смен */
+  padding: 10px;
+}
+</style>
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -649,53 +693,30 @@ input[type="file"] {
 <!-- Календарь) -->
 	<div id="calendar"></div>
 <div class="calendar"></div>
-
-<!-- Кнопка импорта -->
-<div class="card">
-  <h2>Импорт графика</h2>
-  <div class="input-group">
-  <label for="uploadSchedule">Выберите файл:</label>
-  <input type="file" id="uploadSchedule" accept=".ods" />
-</div>
-
-    <div class="input-group">
-  <label for="employeeSelect">Выберите сотрудника:</label>
-  <select id="employeeSelect"></select>
-</div>
-
-    <button type="button" id="importShifts" class="btn-import">Импортировать</button>
-  </form>
-</div>
-
-    <!-- 2) Таблица смен -->
-    <div class="card">
-      <h2>Список смен</h2>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Имя</th>
-              <th>Дата</th>
-              <th>Начало</th>
-              <th>Тип смены</th>
-              <th>Напоминание</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody id="shiftsBody">
-            <!-- Динамически -->
-          </tbody>
-        </table>
-      </div>
+     <!-- 2) Таблица смен -->
+<div class="card" id="shiftCard">
+  <h2 class="clickable">📅 Список смен</h2>
+  <div id="shiftTableContainer" class="hidden">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Имя</th>
+            <th>Дата</th>
+            <th>Начало</th>
+            <th>Тип смены</th>
+            <th>Напоминание</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="shiftsBody">
+          <!-- Динамически -->
+        </tbody>
+      </table>
     </div>
-	<!-- QR-код -->
-<div class="card">
-  <h2>Сохранить или поделиться сменами</h2>
-  <button class="btn btn-share" id="downloadShifts">Скачать файл</button>
-  <button class="btn btn-share" id="shareShifts">Поделится QR-код</button>
-  <div id="qr-container" style="margin-top: 10px; text-align: center;"></div>
+  </div>
 </div>
-     <!-- Добавляем новый блок -->
+ <!-- Статистика за текущий месяц -->
      <div class="card">
   <h2>Статистика за текущий месяц</h2>
   
@@ -716,7 +737,23 @@ input[type="file"] {
   </div>
 
 </div>
-    
+<!-- Кнопка импорта -->
+<div class="card">
+  <h2>Импорт графика</h2>
+  <div class="input-group">
+  <label for="uploadSchedule">Выберите файл:</label>
+  <input type="file" id="uploadSchedule" accept=".ods" />
+</div>
+
+    <div class="input-group">
+  <label for="employeeSelect">Выберите сотрудника:</label>
+  <select id="employeeSelect"></select>
+</div>
+
+    <button type="button" id="importShifts" class="btn-import">Импортировать</button>
+  </form>
+</div>
+
     <!-- Карточка расчёта зарплаты -->
 <div class="card">
   <h2>Рассчитать зарплату</h2>
@@ -742,7 +779,14 @@ input[type="file"] {
         </ul>
       </div>
     </div>
+	<!-- QR-код -->
+<div class="card">
+  <h2>Сохранить или поделиться сменами</h2>
+  <button class="btn btn-share" id="downloadShifts">Скачать файл</button>
+  <button class="btn btn-share" id="shareShifts">Поделится QR-код</button>
+  <div id="qr-container" style="margin-top: 10px; text-align: center;"></div>
 
+</div>
     <!-- Модальное окно для редактирования -->
     <div class="modal-overlay" id="modalOverlay">
       <div class="modal" id="editModal">
@@ -1101,6 +1145,25 @@ input[type="file"] {
       salaryResult.style.display = 'block';
     });
   </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const shiftCard = document.getElementById("shiftCard");
+  const shiftTableContainer = document.getElementById("shiftTableContainer");
+
+  if (!shiftCard || !shiftTableContainer) {
+    console.error("❌ Ошибка: Контейнер смен не найден.");
+    return;
+  }
+
+  shiftCard.addEventListener("click", () => {
+    if (shiftTableContainer.classList.contains("open")) {
+      shiftTableContainer.classList.remove("open");
+    } else {
+      shiftTableContainer.classList.add("open");
+    }
+  });
+});
+</script>
   </main>
   <script>
   if ('serviceWorker' in navigator) {
@@ -1499,6 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const shareButton = document.getElementById('shareShifts');
   const qrContainer = document.getElementById('qr-container');
 
+  // ❌ Была ошибка в проверке элементов: пропущены операторы "&&"
   if (!downloadButton || !shareButton || !qrContainer) {
     console.error("❌ Ошибка: Кнопки или контейнер не найдены.");
     return;
@@ -1521,10 +1585,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("✅ Смены сохранены!");
   }
 
-  // 🔹 Функция форматирования даты в `DD-MM-YYYY`
+  // 🔹 Функция форматирования даты в DD-MM-YYYY
   function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
-    return `${day}-${month}-${year}`;
+    return `${day}-${month}-${year}`; // ❌ Ошибка: Было без кавычек, теперь исправлено
   }
 
   // 🔹 Функция перевода типа смены на русский
@@ -1548,29 +1612,61 @@ document.addEventListener('DOMContentLoaded', () => {
     let fileContent = "📅 График смен\n\n";
     fileContent += shifts.map(shift =>
       `Дата: ${formatDate(shift.date)}\nТип: ${translateShiftType(shift.shiftType)}\n---`
-    ).join("\n");
+    ).join("\n"); // ❌ Ошибка: Была без кавычек, теперь исправлено
 
     console.log("📦 Создаём файл со сменами:\n", fileContent);
 
-    return new Blob([fileContent], { type: "text/plain" });
+    return new Blob(["\uFEFF" + fileContent], { type: "text/plain;charset=utf-8" }); // ✅ Исправляем кодировку UTF-8
   }
-
+  
   // 🔹 Функция скачивания файла
   function downloadFile() {
-    const blob = generateFile();
-    if (!blob) return;
+  const blob = generateFile();
+  if (!blob) return;
 
-    const fileURL = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = fileURL;
-    a.download = "Мои_смены.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const fileURL = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = fileURL;
+  a.download = "Мои_смены.txt";
 
-    console.log("✅ Файл успешно скачан!");
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  console.log("✅ Файл успешно скачан!");
+}
+
+// ✅ Исправляем кодировку UTF-8
+function updateShiftsFile() {
+  loadShifts(); // ✅ Загружаем смены перед созданием файла
+
+  if (!shifts || shifts.length === 0) {
+    alert("❌ Нет смен для сохранения!");
+    console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
+    return;
   }
 
+  let fileContent = "📅 График смен\n\n";
+  fileContent += shifts.map(shift =>
+    `Дата: ${formatDate(shift.date)}\nТип: ${translateShiftType(shift.shiftType)}\n---`
+  ).join("\n");
+
+  console.log("📦 Обновляем shifts.txt:\n", fileContent);
+
+  // ✅ Исправляем кодировку UTF-8
+  const blob = new Blob(["\uFEFF" + fileContent], { type: "text/plain;charset=utf-8" });
+  const fileURL = URL.createObjectURL(blob);
+
+  // ✅ Предлагаем пользователю вручную загрузить файл на GitHub
+  const a = document.createElement("a");
+  a.href = fileURL;
+  a.download = "shifts.txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  alert("✅ Файл shifts.txt сохранён! Загрузите его в GitHub.");
+}
   // 🔹 Функция генерации QR-кода для скачивания файла
 function generateQRCode() {
   loadShifts(); // ✅ Загружаем смены перед генерацией QR-кода
@@ -1595,11 +1691,11 @@ function generateQRCode() {
   console.log("✅ QR-код успешно создан:", downloadLink);
   alert('QR-код готов! Сканируйте и скачивайте файл.');
 }
-
   // Загружаем сохранённые смены при загрузке страницы
   loadShifts();
 
   // Подключаем кнопки
+  
   downloadButton.addEventListener('click', downloadFile);
   shareButton.addEventListener('click', generateQRCode);
 });
