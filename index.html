@@ -1577,6 +1577,7 @@ function generateQRCode() {
 
   if (!shifts || shifts.length === 0) {
     alert('❌ Нет смен для передачи!');
+    console.error("⛔ Ошибка: shifts пустой или не загружен!", shifts);
     return;
   }
 
@@ -1592,6 +1593,7 @@ function generateQRCode() {
   });
 
   console.log("✅ QR-код успешно создан:", downloadLink);
+  alert('QR-код готов! Сканируйте и скачивайте файл.');
 }
 
   // Загружаем сохранённые смены при загрузке страницы
