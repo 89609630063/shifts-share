@@ -31,7 +31,7 @@
 
           console.log("📦 Создаём файл перед скачиванием:\n", fileContent);
 
-          const blob = new Blob([fileContent], { type: "text/plain" });
+          const blob = new Blob(["\uFEFF" + fileContent], { type: "text/plain;charset=utf-8" });
           const fileURL = URL.createObjectURL(blob);
 
           const a = document.createElement("a");
