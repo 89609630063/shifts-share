@@ -49,5 +49,29 @@
       }
     });
   </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shiftsParam = urlParams.get("shifts");
+
+      if (shiftsParam) {
+          try {
+              const shifts = JSON.parse(decodeURIComponent(shiftsParam));
+              console.log("✅ Смены загружены:", shifts);
+              
+              // Выводим смены на страницу
+              const output = document.getElementById("shiftList");
+              output.innerHTML = "<h3>📅 График смен:</h3>";
+              shifts.forEach(shift => {
+                  output.innerHTML += `<p>📅 ${shift.date} — ${shift.shiftType}</p>`;
+              });
+          } catch (error) {
+              console.error("❌ Ошибка при разборе смен:", error);
+          }
+      } else {
+          console.warn("⚠️ В URL нет смен.");
+      }
+  });
+</script>
 </body>
 </html>
