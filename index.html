@@ -599,47 +599,52 @@ input[type="file"] {
 }
 </style>
 <style>
-.clickable {
-  cursor: pointer;
-  padding: 10px;
-  background: #f1f1f1;
-  border-radius: 5px;
-  text-align: center;
-  transition: background 0.3s ease;
-}
-
-.clickable:hover {
-  background: #e0e0e0;
-}
-
-#shiftTableContainer {
-  display: none; /* Скрываем изначально */
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background: #f9f9f9;
-  border-radius: 5px;
-  transition: all 0.3s ease-in-out;
-}
-
-#shiftTableContainer.open {
-  display: block; /* Показываем при открытии */
-}
-
+/* Контейнер таблицы */
 #shiftTableContainer {
   margin-top: 10px;
-  padding: 10px;
+  padding: 0; /* Убираем отступы */
   border: 1px solid #ccc;
   background: #f9f9f9;
   border-radius: 5px;
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  transition: max-height 0.5s ease-in-out, padding 0.3s ease-in-out;
 }
 
+/* Открытое состояние */
 #shiftTableContainer.open {
   max-height: 500px; /* Достаточно для нескольких смен */
   padding: 10px;
+}
+
+/* Адаптивность */
+.table-responsive {
+  width: 100%;
+  max-height: 400px; /* Вертикальный скролл */
+  overflow-x: auto; /* Горизонтальный скролл */
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 8px;
+}
+
+table {
+  min-width: 800px; /* Расширяем таблицу */
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background: #ddd;
+  z-index: 2;
 }
 </style>
 <style>
@@ -1174,11 +1179,7 @@ input[type="file"] {
   }
 
   shiftCard.addEventListener("click", () => {
-    if (shiftTableContainer.classList.contains("open")) {
-      shiftTableContainer.classList.remove("open");
-    } else {
-      shiftTableContainer.classList.add("open");
-    }
+    shiftTableContainer.classList.toggle("open");
   });
 });
 </script>
