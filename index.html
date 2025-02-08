@@ -1662,6 +1662,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 📌 Подключаем кнопки
     uploadButton.addEventListener('click', uploadShiftsToGitHub);
     shareButton.addEventListener('click', generateQRCode);
+document.getElementById('uploadShifts').addEventListener('click', uploadShiftsToGitHub);
+document.getElementById('shareShifts').addEventListener('click', generateQRCode);
 });
 </script>
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="reloadQRCodeLib()"></script>
