@@ -805,10 +805,10 @@ thead {
 	<!-- QR-код -->
 <div class="card">
   <h2>Сохранить или поделиться сменами</h2>
-  <button class="btn btn-share" id="downloadShifts">Скачать файл</button>
-  <button class="btn btn-share" id="shareShifts">Поделится QR-код</button>
+  <button class="btn btn-share" id="uploadShifts">📤 Обновить смены в GitHub</button>  
+  <button class="btn btn-share" id="downloadShifts">📥 Скачать файл</button>
+  <button class="btn btn-share" id="shareShifts">📲 Поделиться QR-кодом</button>
   <div id="qr-container" style="text-align: center; margin-top: 20px;"></div>
-
 </div>
     <!-- Модальное окно для редактирования -->
     <div class="modal-overlay" id="modalOverlay">
@@ -1583,92 +1583,85 @@ function highlightShiftsInCalendar() {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const downloadButton = document.getElementById('downloadShifts');
-  const shareButton = document.getElementById('shareShifts');
-  const qrContainer = document.getElementById('qr-container');
+    const uploadButton = document.getElementById('uploadShifts');
+    const shareButton = document.getElementById('shareShifts');
+    const qrContainer = document.getElementById('qr-container');
+    
+    let shifts = [];
 
-  let shifts = [];
-
-  // Загружаем смены из localStorage
-  function loadShifts() {
-    const savedShifts = localStorage.getItem("shifts");
-    shifts = savedShifts ? JSON.parse(savedShifts) : [];
-    console.log("✅ Смены загружены:", shifts);
-  }
-
-  // Форматирование даты
-  function formatDate(dateString) {
-    const [year, month, day] = dateString.split('-');
-    return `${day}-${month}-${year}`;
-  }
-
-  // Перевод типа смены
-  function translateShiftType(shiftType) {
-    return shiftType === "night" ? "Ночная" : "Дневная";
-  }
-
-  // Создание файла со сменами
-  function generateFile() {
-    loadShifts();
-    if (!shifts.length) {
-      alert("❌ Нет смен для сохранения!");
-      return null;
+    // Загрузка смен из localStorage
+    function loadShifts() {
+        const savedShifts = localStorage.getItem("shifts");
+        shifts = savedShifts ? JSON.parse(savedShifts) : [];
+        console.log("✅ Смены загружены:", shifts);
     }
 
-    let fileContent = "📅 График смен\n\n";
-    fileContent += shifts.map(shift =>
-      `Дата: ${formatDate(shift.date)}\nТип: ${translateShiftType(shift.shiftType)}\n---`
-    ).join("\n");
-
-    console.log("📦 Создаём файл:", fileContent);
-    return new Blob(["\uFEFF" + fileContent], { type: "text/plain;charset=utf-8" });
-  }
-
-  // Скачивание файла
-  function downloadFile() {
-    const blob = generateFile();
-    if (!blob) return;
-
-    const fileURL = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = fileURL;
-    a.download = "Мои_смены.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    console.log("✅ Файл успешно скачан!");
-  }
-
-  // Генерация QR-кода
-  function generateQRCode() {
-    loadShifts();
-    if (!shifts.length) {
-      alert('❌ Нет смен для передачи!');
-      return;
+    // Генерация JSON-файла со сменами
+    function generateShiftsFile() {
+        loadShifts();
+        if (!shifts.length) {
+            alert("❌ Нет смен для сохранения!");
+            return null;
+        }
+        const fileContent = JSON.stringify(shifts, null, 2);
+        console.log("📦 Содержимое shifts.json:", fileContent);
+        return fileContent;
     }
 
-    const encodedShifts = encodeURIComponent(JSON.stringify(shifts));
-    const downloadLink = `https://89609630063.github.io/shifts-share/download.html?shifts=${encodedShifts}`;
+    // 📌 Функция загрузки shifts.json в GitHub
+    async function uploadShiftsToGitHub() {
+        const fileContent = generateShiftsFile();
+        if (!fileContent) return;
 
-    qrContainer.innerHTML = ''; // Очищаем перед генерацией
+        const GITHUB_USERNAME = "89609630063";  // Твой GitHub
+        const REPO_NAME = "shifts-share"; // Твой репозиторий
+        const FILE_PATH = "files/shifts.json"; // Путь в репо
+        const GITHUB_TOKEN = process.env.GIT_TOKEN; // Секретный токен (в GitHub Secrets)
 
-    new QRCode(qrContainer, {
-      text: downloadLink,
-      width: 200,
-      height: 200
-    });
+        const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));
 
-    console.log("✅ QR-код создан:", downloadLink);
-    alert('✅ QR-код готов! Сканируйте и скачивайте файл.');
-  }
+        try {
+            const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${GITHUB_TOKEN}`,
+                    "Accept": "application/vnd.github.v3+json"
+                },
+                body: JSON.stringify({
+                    message: "Обновление смен",
+                    content: encodedContent,
+                    branch: "main"
+                })
+            });
 
-  // Загружаем смены при загрузке страницы
-  loadShifts();
+            const data = await response.json();
+            console.log("✅ Смены загружены в GitHub:", data);
+            alert("✅ Смены успешно загружены на GitHub!");
+        } catch (error) {
+            console.error("❌ Ошибка загрузки на GitHub:", error);
+            alert("Ошибка загрузки смен в GitHub!");
+        }
+    }
 
-  // Привязываем события к кнопкам
-  downloadButton.addEventListener('click', downloadFile);
-  shareButton.addEventListener('click', generateQRCode);
+    // 📌 Функция генерации QR-кода со ссылкой на shifts.json
+    function generateQRCode() {
+        const fileURL = "https://89609630063.github.io/shifts-share/files/shifts.json"; // Ссылка на твой JSON
+
+        qrContainer.innerHTML = ''; // Очищаем контейнер перед генерацией
+
+        new QRCode(qrContainer, {
+            text: fileURL,
+            width: 200,
+            height: 200
+        });
+
+        console.log("✅ QR-код создан:", fileURL);
+        alert("✅ QR-код готов! Скачать смены.");
+    }
+
+    // 📌 Подключаем кнопки
+    uploadButton.addEventListener('click', uploadShiftsToGitHub);
+    shareButton.addEventListener('click', generateQRCode);
 });
 </script>
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="reloadQRCodeLib()"></script>
