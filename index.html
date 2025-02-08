@@ -1469,8 +1469,8 @@ function highlightShiftsInCalendar() {
 
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
+ // импорт смен
    document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("uploadSchedule");
   const employeeSelect = document.getElementById("employeeSelect");
@@ -1481,7 +1481,9 @@ function highlightShiftsInCalendar() {
 
   // Функция для обновления списка сотрудников
   function updateEmployeeSelect() {
-    employeeSelect.innerHTML = employees.map(name => `<option value="${name}">${name}</option>`).join("");
+    employeeSelect.innerHTML = employees
+      .map(name => `<option value="${name}">${name}</option>`)
+      .join("");
   }
 
   // При загрузке ODS-файла
@@ -1504,8 +1506,12 @@ function highlightShiftsInCalendar() {
         return;
       }
 
-      // Получаем список сотрудников (первая колонка)
-      employees = sheet.map(row => row[0]).filter(name => name && name !== "ФИО" && name !== "Кол-во линий");
+      // ✅ Исправленный код для поиска сотрудников
+      employees = sheet
+        .map(row => row[0]?.trim())  // Убираем лишние пробелы
+        .filter(name => name && !name.startsWith("ФИО") && !name.startsWith("Кол-во линий")); // Убираем ненужные строки
+
+      console.log("Найденные сотрудники:", employees);
 
       if (employees.length === 0) {
         alert("Сотрудники не найдены в файле!");
@@ -1551,7 +1557,7 @@ function highlightShiftsInCalendar() {
         newShifts.push({
           id: Date.now() + day,
           name: shift === "Д" ? "День" : "Ночь",
-          `date: ${yearMonth}-${String(day).padStart(2, "0")}`,
+          date: `${yearMonth}-${String(day).padStart(2, "0")}`,
           startTime: shift === "Д" ? "08:00" : "20:00",
           shiftType: shift === "Д" ? "day" : "night",
           remindBefore: 30,
