@@ -1199,54 +1199,7 @@ if ("Notification" in window) {
   });
 }
 </script>
- <script>
-// уведомления для ios
-document.addEventListener("DOMContentLoaded", () => {
-    // 1️⃣ Запрашиваем разрешение на уведомления
-    if ("Notification" in window) {
-        if (Notification.permission === "default") {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    console.log("✅ Уведомления разрешены!");
-                } else {
-                    console.warn("⚠️ Уведомления запрещены пользователем.");
-                }
-            });
-        }
-    }
 
-    checkShiftReminders(); // Запускаем проверку смен
-});
-
-function checkShiftReminders() {
-    loadShifts();
-    if (!shifts.length) return;
-
-    let now = new Date();
-    shifts.forEach(shift => {
-        let shiftDate = new Date(shift.date + "T" + shift.startTime);
-        let timeDiff = shiftDate - now;
-
-        if (timeDiff > 0 && timeDiff <= 1800000) { // Напоминание за 30 минут
-            new Notification("Напоминание о смене", {
-                body: `📅 Ваша смена (${shift.shiftType === "night" ? "Ночная" : "Дневная"}) скоро начнётся!`,
-                icon: "https://cdn-icons-png.flaticon.com/512/2983/2983767.png",
-                vibrate: [200, 100, 200]
-            });
-        }
-    });
-
-    // 3️⃣ Повторяем проверку каждые 10 минут (600000 мс) для экономии батареи
-    setTimeout(checkShiftReminders, 600000);
-}
-
-// ✅ Запуск проверки при возвращении на страницу (экономия батареи)
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-        checkShiftReminders();
-    }
-});
-</script>
 <script>
 //check the console for date click event
 //Fixed day highlight
@@ -1679,5 +1632,53 @@ function highlightShiftsInCalendar() {
 <!-- Подключаем библиотеку QRCode.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="script.js"></script>
+<script>
+// 📌 Уведомления для iOS (iPhone)
+document.addEventListener("DOMContentLoaded", () => {
+    // 1️⃣ Запрашиваем разрешение на уведомления
+    if ("Notification" in window) {
+        if (Notification.permission === "default") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    console.log("✅ Уведомления разрешены!");
+                } else {
+                    console.warn("⚠️ Уведомления запрещены пользователем.");
+                }
+            });
+        }
+    }
+
+    checkShiftReminders(); // Запускаем проверку смен
+});
+
+function checkShiftReminders() {
+    loadShifts();
+    if (!shifts.length) return;
+
+    let now = new Date();
+    shifts.forEach(shift => {
+        let shiftDate = new Date(shift.date + "T" + shift.startTime);
+        let timeDiff = shiftDate - now;
+
+        if (timeDiff > 0 && timeDiff <= 1800000) { // Напоминание за 30 минут
+            new Notification("Напоминание о смене", {
+                body: `📅 Ваша смена (${shift.shiftType === "night" ? "Ночная" : "Дневная"}) скоро начнётся!`,
+                icon: "https://cdn-icons-png.flaticon.com/512/2983/2983767.png",
+                vibrate: [200, 100, 200]
+            });
+        }
+    });
+
+    // 3️⃣ Повторяем проверку каждые 10 минут (600000 мс) для экономии батареи
+    setTimeout(checkShiftReminders, 600000);
+}
+
+// ✅ Запуск проверки при возвращении на страницу (экономия батареи)
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        checkShiftReminders();
+    }
+});
+</script>
 </body>
 </html>
