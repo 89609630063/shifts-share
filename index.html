@@ -1691,25 +1691,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 📌 Функция генерации QR-кода со ссылкой на shifts.json
     function generateQRCode() {
-        const fileURL = "https://89609630063.github.io/shifts-share/files/shifts.json";
+    loadShifts(); // Загружаем смены
 
-        qrContainer.innerHTML = '';
-
-        new QRCode(qrContainer, {
-            text: fileURL,
-            width: 200,
-            height: 200
-        });
-
-        console.log("✅ QR-код создан:", fileURL);
-        alert("✅ QR-код готов! Сканируйте и скачивайте смены.");
+    if (!shifts.length) {
+        alert("❌ Нет смен для передачи!");
+        return;
     }
 
-    // 📌 Подключаем кнопки
-    if (uploadButton) uploadButton.addEventListener('click', uploadShiftsToGitHub);
-    if (downloadButton) downloadButton.addEventListener('click', downloadFile);
-    if (shareButton) shareButton.addEventListener('click', generateQRCode);
-});
+    // Формируем читаемые смены (пример: "05.02.2025 Ночь")
+    const fileContent = shifts.map(shift => {
+        let shiftType = shift.shiftType === "night" ? "Ночь" : "День";
+        let dateParts = shift.date.split("-");
+        let formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+        return `${formattedDate} ${shiftType}`;
+    }).join("\n");
+
+    // Кодируем смены в Base64 (чтобы передавать через QR-код)
+    const encodedData = btoa(unescape(encodeURIComponent(fileContent)));
+    const downloadURL = `data:text/plain;charset=utf-8;base64,${encodedData}`;
+
+    // Очищаем QR-код и создаём новый
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+        text: downloadURL,
+        width: 200,
+        height: 200
+    });
+
+    console.log("✅ QR-код создан! При сканировании скачает файл.");
+    alert("✅ QR-код готов! Сканируйте, и смены скачаются.");
+}
 </script>
 <!-- Подключаем библиотеку QRCode.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
