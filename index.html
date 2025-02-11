@@ -872,10 +872,19 @@ thead {
     const editRemindBefore = document.getElementById('editRemindBefore');
 
     document.addEventListener('DOMContentLoaded', () => {
+      console.log();
       loadShifts();
       renderShiftsTable();
       highlightShiftsInCalendar(); // Вызываем после загрузки смен
-     });
+       // Обработчики оффлайн/онлайн состояния
+  window.addEventListener("offline", () => {
+      alert("⚠️ Вы оффлайн! Используются сохраненные данные.");
+  });
+
+  window.addEventListener("online", () => {
+      alert("✅ Интернет восстановлен! Данные могут обновиться.");
+  });
+});
 
     function saveShiftsToLocalStorage() {
       localStorage.setItem('shifts', JSON.stringify(shifts));
