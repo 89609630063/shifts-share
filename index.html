@@ -1691,5 +1691,31 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 </script>
+<script>
+<button onclick="setAlarmForShift()" class="btn-alarm">⏰ Добавить будильник</button>
+function setAlarmForShift() {
+    if (!shifts.length) {
+        alert("❌ Нет смен для будильника!");
+        return;
+    }
+
+    let nextShift = shifts[0]; // Берем ближайшую смену
+    let shiftTime = nextShift.startTime;
+    let shiftDate = nextShift.date;
+
+    // Формируем дату в формате iOS (YYYY-MM-DD HH:mm)
+    let shiftDateTime = `${shiftDate} ${shiftTime}`;
+    let encodedTime = encodeURIComponent(shiftDateTime);
+
+    // Запускаем Siri Shortcut
+    let siriShortcutURL = `shortcuts://run-shortcut?name=Будильник%20для%20смены&input=${encodedTime}`;
+    
+    console.log("📅 Передаем в Siri:", shiftDateTime);
+
+    // Открываем ярлык в Siri
+    window.location.href = siriShortcutURL;
+}
+</script>
+
 </body>
 </html>
