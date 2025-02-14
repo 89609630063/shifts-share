@@ -891,16 +891,19 @@ thead {
       sendShiftsToBot(shifts)
     }
     
-    function sendShiftsToBot() {
-    const shiftsJSON = localStorage.getItem("shifts"); // Загружаем смены перед отправкой
+    function saveShiftsToLocalStorage() {
+    localStorage.setItem('shifts', JSON.stringify(shifts));
+    sendShiftsToBot(shifts); // Отправляем смены в бота
+}
 
-    fetch("https://your-bot-server.com/update-shifts", { // Укажи свой URL Railway
+function sendShiftsToBot(shifts) {
+    fetch("https://your-bot-server.com/update-shifts", { // Укажи Railway URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shifts: JSON.parse(shiftsJSON) }) // Исправлено!
+        body: JSON.stringify({ shifts })
     })
     .then(response => response.json())
-    .then(data => console.log("✅ Смены обновлены в боте:", data))
+    .then(data => console.log("✅ Смены отправлены в бота:", data))
     .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
 
