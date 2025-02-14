@@ -884,36 +884,41 @@ thead {
   window.addEventListener("online", () => {
       alert("✅ Интернет восстановлен! Данные могут обновиться.");
   });
-});const API_URL = "https://telegram-shift-bot-production.up.railway.app/"; // Укажи Railway URL
 
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     sendShiftsToBot(shifts);
 }
 
-function sendShiftsToBot(shifts) {
-    console.log("📤 Отправка смен в бота:", shifts);
-    fetch(`${API_URL}/update-shifts`, { 
+// БОТ ТЕЛЕГА
+    function sendShiftToBot(date, time) {
+    const message = `🕒 Новая смена запланирована: ${date} в ${time}`;
+
+    fetch("https://telegram-shift-bot-production.up.railway.app/sendShift", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shifts })
+        body: JSON.stringify({ message })
     })
     .then(response => response.json())
-    .then(data => console.log("✅ Бот обновил смены:", data))
-    .catch(error => console.error("❌ Ошибка отправки смен:", error));
+    .then(data => console.log("Бот ответил:", data))
+    .catch(error => console.error("Ошибка отправки смены в бота:", error));
 }
 
-// При загрузке страницы обновляем смены с бота
-function loadShiftsFromBot() {
-    fetch(`${API_URL}/get-shifts`)
-    .then(response => response.json())
-    .then(data => {
-        shifts = data;
-        console.log("🔄 Смены загружены с бота:", shifts);
-        localStorage.setItem("shifts", JSON.stringify(shifts)); // Обновляем локально
-    })
-    .catch(error => console.error("❌ Ошибка загрузки смен от бота:", error));
+function saveShift() {
+    const date = document.getElementById("dateInput").value;
+    const time = document.getElementById("timeInput").value;
+
+    if (!date || !time) {
+        alert("Введите дату и время смены");
+        return;
+    }
+
+    // Отправляем смену на сервер Railway
+    sendShiftToBot(date, time);
+
+    alert("Смена сохранена и отправлена в бота!");
 }
+
 
 // Загружаем смены при старте сайта
 loadShiftsFromBot();
