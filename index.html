@@ -1692,27 +1692,42 @@ document.addEventListener("visibilitychange", () => {
 });
 </script>
 <script>
-<button onclick="setAlarmForShift()" class="btn-alarm">⏰ Добавить будильник</button>
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        startAlarmIfNeeded();
+    }, 2000); // Запускаем через 2 секунды после загрузки страницы
+});
+
+function startAlarmIfNeeded() {
+    if (localStorage.getItem("alarmSet") !== "true") {
+        setAlarmForShift();
+        localStorage.setItem("alarmSet", "true"); // Запоминаем, что будильник уже ставился
+    } else {
+        console.log("⏳ Будильник уже установлен ранее.");
+    }
+}
+
 function setAlarmForShift() {
     if (!shifts.length) {
-        alert("❌ Нет смен для будильника!");
+        console.log("❌ Нет смен для будильника!");
         return;
     }
 
     let nextShift = shifts[0]; // Берем ближайшую смену
-    let shiftTime = nextShift.startTime;
-    let shiftDate = nextShift.date;
+    let shiftDate = nextShift.date; // Дата смены
+    let shiftType = nextShift.type; // Тип смены (например, "день" или "ночь")
 
-    // Формируем дату в формате iOS (YYYY-MM-DD HH:mm)
+    // Определяем время будильника в зависимости от смены
+    let shiftTime = shiftType === "ночь" ? "19:00" : "07:00";
+
     let shiftDateTime = `${shiftDate} ${shiftTime}`;
     let encodedTime = encodeURIComponent(shiftDateTime);
 
-    // Запускаем Siri Shortcut
-    let siriShortcutURL = `shortcuts://run-shortcut?name=Будильник%20для%20смены&input=${encodedTime}`;
-    
-    console.log("📅 Передаем в Siri:", shiftDateTime);
+    let siriShortcutURL = `shortcuts://run-shortcut?name=Будильник%20для%20смены&input=text&text=${encodedTime}`;
 
-    // Открываем ярлык в Siri
+    console.log(`📅 Устанавливаем будильник: ${shiftType} - ${shiftDateTime}`);
+
+    // Открываем Siri Shortcut
     window.location.href = siriShortcutURL;
 }
 </script>
