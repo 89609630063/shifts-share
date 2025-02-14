@@ -884,24 +884,39 @@ thead {
   window.addEventListener("online", () => {
       alert("✅ Интернет восстановлен! Данные могут обновиться.");
   });
-});
+});const API_URL = "https://telegram-shift-bot-production.up.railway.app/"; // Укажи Railway URL
 
-    function saveShiftsToLocalStorage() {
-      localStorage.setItem('shifts', JSON.stringify(shifts));
-      sendShiftsToBot(shifts)
-    }
-    
+function saveShiftsToLocalStorage() {
+    localStorage.setItem("shifts", JSON.stringify(shifts));
+    sendShiftsToBot(shifts);
+}
 
 function sendShiftsToBot(shifts) {
-    fetch("https://your-bot-server.com/update-shifts", { // Укажи Railway URL
+    console.log("📤 Отправка смен в бота:", shifts);
+    fetch(`${API_URL}/update-shifts`, { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shifts })
     })
     .then(response => response.json())
-    .then(data => console.log("✅ Смены отправлены в бота:", data))
+    .then(data => console.log("✅ Бот обновил смены:", data))
     .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
+
+// При загрузке страницы обновляем смены с бота
+function loadShiftsFromBot() {
+    fetch(`${API_URL}/get-shifts`)
+    .then(response => response.json())
+    .then(data => {
+        shifts = data;
+        console.log("🔄 Смены загружены с бота:", shifts);
+        localStorage.setItem("shifts", JSON.stringify(shifts)); // Обновляем локально
+    })
+    .catch(error => console.error("❌ Ошибка загрузки смен от бота:", error));
+}
+
+// Загружаем смены при старте сайта
+loadShiftsFromBot();
 
     function loadShifts() {
       const shiftsJSON = localStorage.getItem('shifts');
