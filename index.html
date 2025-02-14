@@ -891,10 +891,6 @@ thead {
       sendShiftsToBot(shifts)
     }
     
-    function saveShiftsToLocalStorage() {
-    localStorage.setItem('shifts', JSON.stringify(shifts));
-    sendShiftsToBot(shifts); // Отправляем смены в бота
-}
 
 function sendShiftsToBot(shifts) {
     fetch("https://your-bot-server.com/update-shifts", { // Укажи Railway URL
