@@ -888,7 +888,20 @@ thead {
 
     function saveShiftsToLocalStorage() {
       localStorage.setItem('shifts', JSON.stringify(shifts));
+      sendShiftsToBot(shifts)
     }
+    
+    function sendShiftsToBot(shifts) {
+    fetch("https://your-bot-server.com/update-shifts", { // Укажи свой URL Railway
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shifts })
+    })
+    .then(response => response.json())
+    .then(data => console.log("✅ Смены обновлены в боте:", data))
+    .catch(error => console.error("❌ Ошибка отправки смен:", error));
+}
+    
     function loadShifts() {
       const shiftsJSON = localStorage.getItem('shifts');
       if (shiftsJSON) {
