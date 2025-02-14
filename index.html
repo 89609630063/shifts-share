@@ -1719,6 +1719,7 @@ function setAlarmForShift() {
 
     // Определяем время будильника в зависимости от смены
     let shiftTime = shiftType === "ночь" ? "19:00" : "07:00";
+    let encodedTime = encodeURIComponent(shiftTime);
 
     let shiftDateTime = `${shiftDate} ${shiftTime}`;
     let encodedTime = encodeURIComponent(shiftDateTime);
