@@ -884,12 +884,11 @@ thead {
   window.addEventListener("online", () => {
       alert("✅ Интернет восстановлен! Данные могут обновиться.");
   });
-
+});
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     sendShiftsToBot(shifts);
 }
-});
 // БОТ ТЕЛЕГА
     
 // Загружаем смены при старте сайта
