@@ -888,6 +888,9 @@ thead {
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     sendShiftsToBot(shifts);
+    renderShiftsTable();
+    
+    document.getElementById('shiftForm').reset();
 }
 // БОТ 
 const API_URL = "https://telegram-shift-bot-production-6cc6.up.railway.app";
