@@ -889,10 +889,31 @@ function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     sendShiftsToBot(shifts);
 }
-// БОТ ТЕЛЕГА
-    
+// БОТ 
+const API_URL = "https://telegram-shift-bot-production-6cc6.up.railway.app/";
+
+function saveShiftsToServer() {
+    fetch(API_URL, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shifts })
+    })
+    .then(response => response.json())
+    .then(data => console.log("✅ Смены сохранены на сервере", data))
+    .catch(error => console.error("❌ Ошибка сохранения", error));
+}
+
+function loadShiftsFromServer() {
+    fetch(API_URL)
+    .then(response => response.json())
+    .then(data => {
+        shifts = data;
+        console.log("📥 Загружены смены с сервера:", shifts);
+        renderShiftsTable();
+    })
+    .catch(error => console.error("❌ Ошибка загрузки смен", error));
+}
 // Загружаем смены при старте сайта
-loadShiftsFromBot();
 
     function loadShifts() {
       const shiftsJSON = localStorage.getItem('shifts');
