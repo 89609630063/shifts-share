@@ -891,33 +891,38 @@ function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     // Обновляем интерфейс (перерисовываем таблицу смен)
     renderShiftsTable();
-    // Отправляем смены в бота
-    sendShiftsToBot(shifts);
+    // Отправляем смены в сервер
+    sendShiftsToServer(shifts);
 }
-// БОТ 
+
+// 📌 Адрес сервера
 const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
 
-function sendShiftsToBot(shifts) {
-    console.log("📤 Отправка смен в бота:", shifts);
+// 📌 Функция отправки смен
+function sendShiftsToServer(shifts) {
+    console.log("📤 Отправка смен на сервер:", shifts);
 
-    fetch(`${API_URL}/update-shifts`, { 
+    fetch(API_URL, { // УБРАЛ "/update-shifts", это ошибка!
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(shifts)
+        body: JSON.stringify(shifts) // Отправляем массив смен без { shifts: [...] }
     })
     .then(response => response.json())
-    .then(data => console.log("✅ Бот обновил смены:", data))
+    .then(data => console.log("✅ Сервер принял смены:", data))
     .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
-// Загружаем смены при старте сайта
 
-    function loadShifts() {
-    const shiftsJSON = localStorage.getItem("shifts");
-    if (shiftsJSON) {
-        shifts = JSON.parse(shiftsJSON);
-    } else {
-        shifts = [];
-    }
+// 📌 Загрузка смен при старте
+function loadShifts() {
+    fetch(API_URL) // Теперь загружаем смены с сервера!
+        .then(response => response.json())
+        .then(data => {
+            shifts = data || [];
+            localStorage.setItem("shifts", JSON.stringify(shifts));
+            renderShiftsTable();
+        })
+        .catch(error => console.error("❌ Ошибка загрузки смен:", error));
+}
     // Обновляем интерфейс
     renderShiftsTable();
 }
