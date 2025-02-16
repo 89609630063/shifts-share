@@ -895,7 +895,7 @@ function saveShiftsToLocalStorage() {
     sendShiftsToBot(shifts);
 }
 // БОТ 
-const API_URL = "https://shift-schedule-server-production.up.railway.app";
+const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
 
 function sendShiftsToBot(shifts) {
     console.log("📤 Отправка смен в бота:", shifts);
@@ -903,7 +903,7 @@ function sendShiftsToBot(shifts) {
     fetch(`${API_URL}/update-shifts`, { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shifts })
+        body: JSON.stringify(shifts)
     })
     .then(response => response.json())
     .then(data => console.log("✅ Бот обновил смены:", data))
