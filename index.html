@@ -896,16 +896,16 @@ function saveShiftsToLocalStorage() {
 }
 
 // 📌 Адрес сервера
-const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
+const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
 // 📌 Функция отправки смен
 function sendShiftsToServer(shifts) {
     console.log("📤 Отправка смен на сервер:", shifts);
 
-    fetch(API_URL, { // УБРАЛ "/update-shifts", это ошибка!
+    fetch(${API_URL}/api/shifts,{ // УБРАЛ "/update-shifts", это ошибка!
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(shifts) // Отправляем массив смен без { shifts: [...] }
+        body: JSON.stringify({shifts}) // Отправляем массив смен без { shifts: [...] }
     })
     .then(response => response.json())
     .then(data => console.log("✅ Сервер принял смены:", data))
