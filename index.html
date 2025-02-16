@@ -902,7 +902,7 @@ const API_URL = "https://shift-schedule-server-production.up.railway.app";
 function sendShiftsToServer(shifts) {
     console.log("📤 Отправка смен на сервер:", shifts);
 
-    fetch(${API_URL}/api/shifts,{ // УБРАЛ "/update-shifts", это ошибка!
+    fetch(`${API_URL}/api/shifts`, { // УБРАЛ "/update-shifts", это ошибка!
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({shifts}) // Отправляем массив смен без { shifts: [...] }
