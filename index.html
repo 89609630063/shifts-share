@@ -897,19 +897,20 @@ function saveShiftsToLocalStorage() {
 }
 
 // 📌 Адрес сервера
-const API_URL = "https://shift-schedule-server-production.up.railway.app";
+const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
 
-// 📌 Функция отправки смен
-function loadShiftsFromServer() {
-    fetch("https://shift-schedule-server-production.up.railway.app/api/shifts")
-        .then(res => res.json())
-        .then(data => {
-            console.log("📥 Получены смены с сервера:", data); // Логируем ответ
-            localStorage.setItem("shifts", JSON.stringify(data)); // ✅ Сохраняем в localStorage
-            shifts = data; // 🔄 Обновляем глобальную переменную
-            renderShiftsTable(); // 🔄 Перерисовываем интерфейс
-        })
-        .catch(error => console.error("❌ Ошибка загрузки смен:", error));
+function saveShiftsToServer() {
+    fetch(API_URL, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(shifts) // ✅ Отправляем текущие смены
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Смены успешно отправлены на сервер:", data);
+        loadShiftsFromServer(); // 🔄 Обновляем данные на сайте после отправки
+    })
+    .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
 
 // 📌 Загрузка смен при старте
