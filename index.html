@@ -893,7 +893,7 @@ thead {
     }
     
 });
-const API_URL = "https://telegram-shift-bot-production.up.railway.app"; // Укажи Railway URL
+const API_URL = "https://telegram-shift-bot-production.up.railway.app/api/shifts"; // Укажи Railway URL
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
     sendShiftsToBot(shifts);
