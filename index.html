@@ -871,7 +871,8 @@ thead {
     const editShiftType = document.getElementById('editShiftType');
     const editRemindBefore = document.getElementById('editRemindBefore');
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", () => {
+      loadShiftsFromServer();
       console.log();
       loadShifts();
       renderShiftsTable();
@@ -899,17 +900,16 @@ function saveShiftsToLocalStorage() {
 const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
 // 📌 Функция отправки смен
-function sendShiftsToServer(shifts) {
-    console.log("📤 Отправка смен на сервер:", shifts);
-
-    fetch(`${API_URL}/api/shifts`, { // УБРАЛ "/update-shifts", это ошибка!
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({shifts}) // Отправляем массив смен без { shifts: [...] }
-    })
-    .then(response => response.json())
-    .then(data => console.log("✅ Сервер принял смены:", data))
-    .catch(error => console.error("❌ Ошибка отправки смен:", error));
+function loadShiftsFromServer() {
+    fetch("https://shift-schedule-server-production.up.railway.app/api/shifts")
+        .then(res => res.json())
+        .then(data => {
+            console.log("📥 Получены смены с сервера:", data); // Логируем ответ
+            localStorage.setItem("shifts", JSON.stringify(data)); // ✅ Сохраняем в localStorage
+            shifts = data; // 🔄 Обновляем глобальную переменную
+            renderShiftsTable(); // 🔄 Перерисовываем интерфейс
+        })
+        .catch(error => console.error("❌ Ошибка загрузки смен:", error));
 }
 
 // 📌 Загрузка смен при старте
