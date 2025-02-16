@@ -888,12 +888,9 @@ thead {
 });
 
 function saveShiftsToLocalStorage() {
-    // Сохраняем смены в локальное хранилище
-    localStorage.setItem("shifts", JSON.stringify(shifts));
-    // Обновляем интерфейс (перерисовываем таблицу смен)
-    renderShiftsTable();
-    // Отправляем смены в сервер
-    sendShiftsToServer(shifts);
+    localStorage.setItem("shifts", JSON.stringify(shifts)); // ✅ Сохраняем локально
+    renderShiftsTable(); // 🔄 Перерисовываем таблицу смен
+    saveShiftsToServer(); // 🚀 Отправляем данные на сервер
 }
 
 // 📌 Адрес сервера
