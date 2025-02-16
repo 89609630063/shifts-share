@@ -897,6 +897,8 @@ function saveShiftsToLocalStorage() {
 const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
 
 function saveShiftsToServer() {
+    console.log("📤 Отправляем данные на сервер:", shifts);
+
     fetch("https://shift-schedule-server-production.up.railway.app/api/shifts", {
         method: "POST",
         headers: {
@@ -904,8 +906,11 @@ function saveShiftsToServer() {
         },
         body: JSON.stringify(shifts)
     })
-    .then(response => response.json())
-    .then(data => console.log("✅ Смены отправлены на сервер:", data))
+    .then(response => {
+        console.log("🔄 Ответ сервера получен", response);
+        return response.json();
+    })
+    .then(data => console.log("✅ Смены сохранены на сервере:", data))
     .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
 
