@@ -911,7 +911,7 @@ function saveShiftsToServer() {
 
 // 📌 Загрузка смен при старте
 function loadShifts() {
-    fetch(API_URL) // Теперь загружаем смены с сервера!
+    fetch(API_URL)
         .then(response => response.json())
         .then(data => {
             shifts = data || [];
