@@ -674,7 +674,6 @@ thead {
 <link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
 </head>
 <body>
-  <div id="customAlert" class="hidden">📢 QR-код готов! Скачать файл.</div>
   <header>
     <h1>График смен</h1>
   </header>
@@ -690,7 +689,7 @@ thead {
         </label>
         <label>
           Дата:
-          <input type="date" id="dateInput" required />
+          <input type="date" id="editDate" required />
         </label>
         <label>
           Начало (время):
@@ -821,7 +820,7 @@ thead {
           </label>
           <label>
             Дата:
-            <input type="date" id="dateInput" required />
+            <input type="date" id="editDate" required />
           </label>
           <label>
             Начало (время):
@@ -846,7 +845,7 @@ thead {
     </div>
 
   <script>
-   ;
+   
   
  // Хранилище смен
     let shifts = [];
@@ -896,8 +895,6 @@ function saveShiftsToLocalStorage() {
     document.getElementById('shiftForm').reset();
     
 }
-// БОТ 
-
     // Для удобства: сколько часов в каждом типе смены
     function computeHours(shiftType) {
       switch (shiftType) {
@@ -1590,60 +1587,6 @@ function highlightShiftsInCalendar() {
 });
 </script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const downloadButton = document.getElementById('downloadShifts');
-
-    let shifts = [];
-
-    // Загружаем смены из localStorage
-    function loadShifts() {
-        const savedShifts = localStorage.getItem("shifts");
-        shifts = savedShifts ? JSON.parse(savedShifts) : [];
-        console.log("✅ Смены загружены:", shifts);
-    }
-
-    // Формируем читаемый список смен (пример: "05.02.2025 Ночь")
-    function formatShifts() {
-        loadShifts();
-        if (!shifts.length) {
-            alert("❌ Нет смен для сохранения!");
-            return null;
-        }
-
-        return shifts.map(shift => {
-            let shiftType = shift.shiftType === "night" ? "Ночь" : "День";
-            let dateParts = shift.date.split("-");
-            let formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-            return `${formattedDate} ${shiftType}`;
-        }).join("\n");
-    }
-
-    // 📌 Функция скачивания смен в текстовый файл
-    function downloadFile() {
-        const fileContent = formatShifts();
-        if (!fileContent) return;
-
-        const blob = new Blob(["\uFEFF" + fileContent], { type: "text/plain;charset=utf-8" });
-        const fileURL = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = fileURL;
-        a.download = "Мои_смены.txt";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        console.log("✅ Файл скачан!");
-    }
-
-    // 📌 Подключаем кнопку
-    if (downloadButton) downloadButton.addEventListener('click', downloadFile);
-});
-</script>
-<!-- Подключаем библиотеку QRCode.js -->
-
-
-<script>
 // 📌 Уведомления для iOS (iPhone)
 document.addEventListener("DOMContentLoaded", () => {
     // 1️⃣ Запрашиваем разрешение на уведомления
@@ -1690,47 +1633,6 @@ document.addEventListener("visibilitychange", () => {
         checkShiftReminders();
     }
 });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-        startAlarmIfNeeded();
-    }, 2000); // Запускаем через 2 секунды после загрузки страницы
-});
-
-function startAlarmIfNeeded() {
-    if (localStorage.getItem("alarmSet") !== "true") {
-        setAlarmForShift();
-        localStorage.setItem("alarmSet", "true"); // Запоминаем, что будильник уже ставился
-    } else {
-        console.log("⏳ Будильник уже установлен ранее.");
-    }
-}
-
-function setAlarmForShift() {
-    if (!shifts.length) {
-        console.log("❌ Нет смен для будильника!");
-        return;
-    }
-
-    let nextShift = shifts[0]; // Берем ближайшую смену
-    let shiftDate = nextShift.date; // Дата смены
-    let shiftType = nextShift.type; // Тип смены (например, "день" или "ночь")
-
-    // Определяем время будильника в зависимости от смены
-    let shiftTime = shiftType === "ночь" ? "19:00" : "07:00";
-    let encodedTime = encodeURIComponent(shiftTime);
-
-    let shiftDateTime = `${shiftDate} ${shiftTime}`;
-    let encodedTime = encodeURIComponent(shiftDateTime);
-
-    let siriShortcutURL = `shortcuts://run-shortcut?name=Будильник%20для%20смены&input=text&text=${encodedTime}`;
-
-    console.log(`📅 Устанавливаем будильник: ${shiftType} - ${shiftDateTime}`);
-
-    // Открываем Siri Shortcut
-    window.location.href = siriShortcutURL;
-}
 </script>
 <script src="script.js"></script>
 <script src="sync.js"></script>
