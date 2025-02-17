@@ -848,7 +848,7 @@ thead {
   <script>
    ;
   
-  let currentEditId = null
+ 
 
     // Ссылки на элементы
     const shiftsBody = document.getElementById('shiftsBody');
@@ -891,7 +891,7 @@ const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
  // Хранилище смен
     let shifts = [];
-    
+    let currentEditId = null
     
 // 1. Сохраняем смены локально и отправляем на сервер
 function saveShiftsToLocalStorage() {
