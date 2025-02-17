@@ -892,12 +892,9 @@ thead {
 function saveShiftsToLocalStorage() {
     // Сохраняем смены в локальное хранилище
     localStorage.setItem("shifts", JSON.stringify(shifts));
-    
     // Обновляем интерфейс (перерисовываем таблицу смен)
     renderShiftsTable();
-    
     document.getElementById('shiftForm').reset();
-    // Отправляем смены в бота
     
 }
 // БОТ 
