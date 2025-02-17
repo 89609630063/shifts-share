@@ -907,7 +907,7 @@ function sendShiftsToServer(shifts) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Если сервер принимает массив, а не { shifts: [...], то:
-        body: JSON.stringify(shifts)
+        body: JSON.stringify({ shifts })
     })
     .then(response => response.json())
     .then(data => {
