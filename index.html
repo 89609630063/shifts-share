@@ -690,7 +690,7 @@ thead {
         </label>
         <label>
           Дата:
-          <input type="date" id="dateInput" required>
+          <input type="date" id="dateInput" required />
         </label>
         <label>
           Начало (время):
@@ -821,7 +821,7 @@ thead {
           </label>
           <label>
             Дата:
-            <input type="date" id="dateInput" required>
+            <input type="date" id="dateInput" required />
           </label>
           <label>
             Начало (время):
@@ -956,6 +956,10 @@ document.getElementById("shiftForm").addEventListener("submit", function(event) 
         alert("Введите дату и время смены!");
         return;
     }
+    document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("dateInput");
+    console.log(dateInput.value); // Теперь будет работать корректно
+});
     // Добавляем смену в массив
     shifts.push({ date, time });
     // Сохраняем смену
