@@ -846,9 +846,7 @@ thead {
     </div>
 
   <script>
-    // Хранилище смен
-    let shifts = [];
-    let currentEditId = null;
+   ;
   
   
 
@@ -891,7 +889,10 @@ thead {
   // Пример: https://shift-schedule-server-production.up.railway.app
 const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
-
+ // Хранилище смен
+    let shifts = [];
+    let currentEditId = null
+    
 // 1. Сохраняем смены локально и отправляем на сервер
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
