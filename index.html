@@ -887,79 +887,60 @@ thead {
   });
 });
 
-    // 📌 Сохранение смен локально и отправка на сервер
-function saveShiftsToLocalStorage() {
-    console.log("💾 Сохраняем в LocalStorage:", shifts);
-    localStorage.setItem("shifts", JSON.stringify(shifts)); 
-    renderShiftsTable();
-    
-    console.log("🚀 Вызываем saveShiftsToServer()");
-    saveShiftsToServer(); 
-}
+ 
+  // Пример: https://shift-schedule-server-production.up.railway.app
+const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
-const API_URL = "https://telegram-shift-bot-production.up.railway.app/api/shifts"; // Укажи Railway URL
+
+// 1. Сохраняем смены локально и отправляем на сервер
 function saveShiftsToLocalStorage() {
     localStorage.setItem("shifts", JSON.stringify(shifts));
-    sendShiftsToBot(shifts);
+    sendShiftsToServer(shifts);
 }
-// 📌 Сервер API
-const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
 
-// 📌 Отправка смен на сервер
-function saveShiftsToServer() {
-    console.log("📤 Попытка отправки смен на сервер...");
-    console.log("📋 Отправляем данные:", shifts);
+// 2. Отправка смен на сервер (бывшая sendShiftsToBot)
+function sendShiftsToServer(shifts) {
+    console.log("📤 Отправка смен на сервер:", shifts);
 
-    // 1. Сначала пробуждаем сервер (GET-запрос)
-    fetch(API_URL)
-    .then(response => {
-        console.log("🔄 Сервер проснулся. Статус:", response.status);
-        
-        // 2. Удаляем все смены перед отправкой новых
-        console.log("🗑️ Удаляем старые смены...");
-        return fetch(API_URL, { method: "DELETE" });
+    // Отправляем массив shifts по POST /api/shifts
+    fetch(`${API_URL}/api/shifts`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Если сервер принимает массив, а не { shifts: [...], то:
+        body: JSON.stringify(shifts)
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка удаления смен: ${response.statusText}`);
-        }
-        console.log("✅ Старые смены удалены.");
-
-        // 3. Отправляем новые смены
-        console.log("📤 Отправляем новые смены:", shifts);
-        return fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(shifts)
-        });
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка отправки смен: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("✅ Смены обновлены на сервере:", data);
-        
-        // 4. Отправляем смены в бота
-        sendShiftsToBot(); 
-    })
-    .catch(error => {
-        console.error("❌ Ошибка обновления смен:", error);
-    });
-}
-// 📌 Загрузка смен с сервера при старте
-function loadShiftsFromServer() {
-    fetch(API_URL)
     .then(response => response.json())
     .then(data => {
-        shifts = data || [];
-        localStorage.setItem("shifts", JSON.stringify(shifts));
-        renderShiftsTable();
+        console.log("✅ Сервер ответил (смены сохранены):", data);
     })
-    .catch(error => console.error("❌ Ошибка загрузки смен:", error));
+    .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
+
+// 3. При загрузке страницы – загружаем смены c сервера
+function loadShiftsFromServer() {
+    fetch(`${API_URL}/api/shifts`)
+    .then(response => response.json())
+    .then(data => {
+        shifts = data;
+        console.log("🔄 Смены загружены с сервера:", shifts);
+        localStorage.setItem("shifts", JSON.stringify(shifts)); // Обновляем локально
+    })
+    .catch(error => console.error("❌ Ошибка загрузки смен с сервера:", error));
+}
+
+// 4. Локальная загрузка смен при старте (если сервер недоступен)
+function loadShifts() {
+    const shiftsJSON = localStorage.getItem("shifts");
+    if (shiftsJSON) {
+        shifts = JSON.parse(shiftsJSON);
+    } else {
+        shifts = [];
+    }
+}
+
+// 5. При старте: сначала локальная загрузка (на всякий случай), потом серверная
+loadShifts();
+loadShiftsFromServer();
 
 // 📌 Telegram Bot API
 const BOT_API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
