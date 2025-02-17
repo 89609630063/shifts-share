@@ -889,9 +889,12 @@ thead {
 
     // 📌 Сохранение смен локально и отправка на сервер
 function saveShiftsToLocalStorage() {
-    localStorage.setItem("shifts", JSON.stringify(shifts)); // ✅ Сохраняем локально
-    renderShiftsTable(); // 🔄 Перерисовываем таблицу смен
-    saveShiftsToServer(); // 🚀 Отправляем данные на сервер
+    console.log("💾 Сохраняем в LocalStorage:", shifts);
+    localStorage.setItem("shifts", JSON.stringify(shifts)); 
+    renderShiftsTable();
+    
+    console.log("🚀 Вызываем saveShiftsToServer()");
+    saveShiftsToServer(); 
 }
 
 const API_URL = "https://telegram-shift-bot-production.up.railway.app/api/shifts"; // Укажи Railway URL
