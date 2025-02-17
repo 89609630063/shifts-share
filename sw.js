@@ -2,8 +2,11 @@ const CACHE_NAME = "shifts-app-cache-v1";
 const urlsToCache = [
   "./",
   "./index.html",
+  "./download.html",
   "./styles.css",
   "./scripts.js",
+  "./sync.js",
+  "./sw.js",
   "./manifest.json",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png"
