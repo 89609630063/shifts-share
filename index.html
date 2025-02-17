@@ -892,7 +892,7 @@ thead {
 function saveShiftsToLocalStorage() {
     // Сохраняем смены в локальное хранилище
     localStorage.setItem("shifts", JSON.stringify(shifts));
-    sendShiftsToBot(shifts);
+    
     // Обновляем интерфейс (перерисовываем таблицу смен)
     renderShiftsTable();
     
