@@ -905,25 +905,40 @@ const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shi
 // 📌 Отправка смен на сервер
 function saveShiftsToServer() {
     console.log("📤 Перед отправкой на сервер:", shifts);
-    // 1. Удаляем все смены перед отправкой новых
-    console.log("📤 Перед отправкой на сервер:", shifts);
-    fetch(API_URL, { method: "DELETE" })
+
+    // 1. Сначала пробуждаем сервер
+    fetch(API_URL)
     .then(() => {
-        // 2. Отправляем новые смены
+        console.log("⏳ Сервер проснулся, начинаем удаление смен...");
+
+        // 2. Удаляем все смены перед отправкой новых
+        return fetch(API_URL, { method: "DELETE" });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка удаления: ${response.statusText}`);
+        }
+        console.log("🗑️ Смены удалены, отправляем новые...");
+
+        // 3. Отправляем новые смены
         return fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(shifts)
         });
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка отправки смен: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         console.log("✅ Смены обновлены на сервере:", data);
         sendShiftsToBot(); // 📤 Отправляем обновленные смены в бота
     })
     .catch(error => console.error("❌ Ошибка обновления смен:", error));
 }
-
 // 📌 Загрузка смен с сервера при старте
 function loadShiftsFromServer() {
     fetch(API_URL)
