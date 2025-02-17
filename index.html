@@ -974,7 +974,7 @@ function sendShiftsToBot() {
 // 📌 Добавление смены
 document.getElementById("shiftForm").addEventListener("submit", function(event) {
     event.preventDefault();
-
+    console.log("✅ Форма отправлена, обработка началась...");
     let date = document.getElementById("editDate").value;
     let time = document.getElementById("timeInput").value;
 
@@ -982,7 +982,7 @@ document.getElementById("shiftForm").addEventListener("submit", function(event) 
         alert("Введите дату и время смены!");
         return;
     }
-
+    console.log("📅 Дата:", date, "⏰ Время:", time);
     shifts.push({ date, time }); // ✅ Добавляем смену
     saveShiftsToLocalStorage();  // 💾 Сохраняем локально и отправляем на сервер
 
