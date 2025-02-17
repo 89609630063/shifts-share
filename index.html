@@ -907,7 +907,7 @@ function sendShiftsToServer(shifts) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Если сервер принимает массив, а не { shifts: [...], то:
-        body: JSON.stringify({ shifts })
+        body: JSON.stringify({ shifts })ж
     })
     .then(response => response.json())
     .then(data => {
@@ -918,15 +918,23 @@ function sendShiftsToServer(shifts) {
 
 // 3. При загрузке страницы – загружаем смены c сервера
 function loadShiftsFromServer() {
-    fetch(`${API_URL}/api/shifts`)
-    .then(response => response.json())
-    .then(data => {
-        shifts = data;
-        console.log("🔄 Смены загружены с сервера:", shifts);
-        localStorage.setItem("shifts", JSON.stringify(shifts)); // Обновляем локально
-    })
-    .catch(error => console.error("❌ Ошибка загрузки смен с сервера:", error));
-}
+    fetch(`${API_URL}/api/shifts`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  // Если сервер принимает массив, а не { shifts: [...] }, 
+  // то используем JSON.stringify(shifts). 
+  // Если требуется именно { shifts: [...] }, то оставляем как ниже.
+  body: JSON.stringify({ shifts })
+})
+.then(response => response.json())
+.then(data => {
+  console.log("✅ Сервер ответил (смены сохранены):", data);
+})
+.catch(error => {
+  console.error("❌ Ошибка отправки смен:", error);
+});
 
 // 4. Локальная загрузка смен при старте (если сервер недоступен)
 function loadShifts() {
