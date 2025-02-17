@@ -848,7 +848,9 @@ thead {
   <script>
    ;
   
- 
+ // Хранилище смен
+    let shifts = [];
+    let currentEditId = null
 
     // Ссылки на элементы
     const shiftsBody = document.getElementById('shiftsBody');
@@ -886,107 +888,81 @@ thead {
 });
 
  
-  // Пример: https://shift-schedule-server-production.up.railway.app
+    
+function saveShiftsToLocalStorage() {
+    // Сохраняем смены в локальное хранилище
+    localStorage.setItem("shifts", JSON.stringify(shifts));
+    sendShiftsToBot(shifts);
+    // Обновляем интерфейс (перерисовываем таблицу смен)
+    renderShiftsTable();
+    
+    document.getElementById('shiftForm').reset();
+    // Отправляем смены в бота
+    sendShiftsToBot(shifts);
+}
+// БОТ 
 const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
- // Хранилище смен
-    let shifts = [];
-    let currentEditId = null
-    
-// 1. Сохраняем смены локально и отправляем на сервер
-function saveShiftsToLocalStorage() {
-    localStorage.setItem("shifts", JSON.stringify(shifts));
-    sendShiftsToServer(shifts);
-}
-
-// 2. Отправка смен на сервер (бывшая sendShiftsToBot)
-function sendShiftsToServer(shifts) {
-    console.log("📤 Отправка смен на сервер:", shifts);
-
-    // Отправляем массив shifts по POST /api/shifts
+function saveShiftsToServer() {
+    fetch(API_URL, { 
+function sendShiftsToBot(shifts) {
+    console.log("📤 Отправка смен в бота:", shifts);
     fetch(`${API_URL}/api/shifts`, { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Если сервер принимает массив, а не { shifts: [...], то:
-        body: JSON.stringify({ shifts })ж
+        body: JSON.stringify({ shifts })
     })
     .then(response => response.json())
+    .then(data => console.log("✅ Смены сохранены на сервере", data))
+    .catch(error => console.error("❌ Ошибка сохранения", error));
+}
+function loadShiftsFromServer() {
+    fetch(API_URL)
+    .then(response => response.json())
     .then(data => {
-        console.log("✅ Сервер ответил (смены сохранены):", data);
+        shifts = data;
+        console.log("📥 Загружены смены с сервера:", shifts);
+        renderShiftsTable();
     })
+    .catch(error => console.error("❌ Ошибка загрузки смен", error));
+    .then(data => console.log("✅ Бот обновил смены:", data))
     .catch(error => console.error("❌ Ошибка отправки смен:", error));
 }
+// Загружаем смены при старте сайта
 
-// 3. При загрузке страницы – загружаем смены c сервера
-function loadShiftsFromServer() {
-    fetch(`${API_URL}/api/shifts`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  // Если сервер принимает массив, а не { shifts: [...] }, 
-  // то используем JSON.stringify(shifts). 
-  // Если требуется именно { shifts: [...] }, то оставляем как ниже.
-  body: JSON.stringify({ shifts })
-})
-.then(response => response.json())
-.then(data => {
-  console.log("✅ Сервер ответил (смены сохранены):", data);
-})
-.catch(error => {
-  console.error("❌ Ошибка отправки смен:", error);
-});
-
-// 4. Локальная загрузка смен при старте (если сервер недоступен)
-function loadShifts() {
+    function loadShifts() {
+      const shiftsJSON = localStorage.getItem('shifts');
+      if (shiftsJSON) {
+        shifts = JSON.parse(shiftsJSON);
+      } else {
+        shifts = [];
+      }
+    }
+    function loadShifts() {
     const shiftsJSON = localStorage.getItem("shifts");
     if (shiftsJSON) {
         shifts = JSON.parse(shiftsJSON);
     } else {
         shifts = [];
     }
+    // Обновляем интерфейс
+    renderShiftsTable();
 }
-
-// 5. При старте: сначала локальная загрузка (на всякий случай), потом серверная
-loadShifts();
-loadShiftsFromServer();
-
-// 📌 Telegram Bot API
-const BOT_API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts";
-
-// 📌 Отправка смен в бота
-function sendShiftsToBot() {
-    console.log("📤 Отправка смен в бота:", shifts);
-
-    fetch(BOT_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(shifts)
-    })
-    .then(response => response.json())
-    .then(data => console.log("✅ Бот обновил смены:", data))
-    .catch(error => console.error("❌ Ошибка отправки смен:", error));
-}
-
-// 📌 Добавление смены
 document.getElementById("shiftForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    console.log("✅ Форма отправлена, обработка началась...");
-  
+    event.preventDefault(); // Предотвращаем перезагрузку страницы
     let date = document.getElementById("dateInput").value;
     let time = document.getElementById("timeInput").value;
-
     if (!date || !time) {
         alert("Введите дату и время смены!");
         return;
     }
-    console.log("📅 Дата:", date, "⏰ Время:", time);
-    shifts.push({ date, time }); // ✅ Добавляем смену
-    saveShiftsToLocalStorage();  // 💾 Сохраняем локально и отправляем на сервер
-
-    document.getElementById("shiftForm").reset(); // 🔄 Очищаем форму
+    // Добавляем смену в массив
+    shifts.push({ date, time });
+    // Сохраняем смену
+    saveShiftsToLocalStorage();
+    // Очищаем форму после добавления смены
+    document.getElementById("shiftForm").reset();
 });
-
     // Для удобства: сколько часов в каждом типе смены
     function computeHours(shiftType) {
       switch (shiftType) {
