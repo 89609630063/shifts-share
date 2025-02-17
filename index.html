@@ -957,7 +957,7 @@ function sendShiftsToBot() {
 document.getElementById("shiftForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
-    let date = document.getElementById("dateInput").value;
+    let date = document.getElementById("editDate").value;
     let time = document.getElementById("timeInput").value;
 
     if (!date || !time) {
