@@ -906,6 +906,7 @@ const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shi
 function saveShiftsToServer() {
     console.log("📤 Перед отправкой на сервер:", shifts);
     // 1. Удаляем все смены перед отправкой новых
+    console.log("📤 Перед отправкой на сервер:", shifts);
     fetch(API_URL, { method: "DELETE" })
     .then(() => {
         // 2. Отправляем новые смены
