@@ -690,7 +690,7 @@ thead {
         </label>
         <label>
           Дата:
-          <input type="date" id="dateInput" required />
+          <input type="date" id="editDate" required />
         </label>
         <label>
           Начало (время):
@@ -821,7 +821,7 @@ thead {
           </label>
           <label>
             Дата:
-            <input type="date" id="dateInput" required />
+            <input type="date" id="editDate" required />
           </label>
           <label>
             Начало (время):
@@ -982,7 +982,14 @@ function sendShiftsToBot() {
 document.getElementById("shiftForm").addEventListener("submit", function(event) {
     event.preventDefault();
     console.log("✅ Форма отправлена, обработка началась...");
-    let date = document.getElementById("dateInput").value;
+    let dateField = document.getElementById("dateInput") || document.getElementById("editDate");
+
+if (!dateField) {
+    console.error("❌ Поле даты не найдено!");
+    return;
+}
+
+let date = dateField.value;
     let time = document.getElementById("timeInput").value;
 
     if (!date || !time) {
