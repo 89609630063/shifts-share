@@ -690,7 +690,7 @@ thead {
         </label>
         <label>
           Дата:
-          <input type="date" id="dateInput" required />
+          <input type="date" id="dateInput" required>
         </label>
         <label>
           Начало (время):
@@ -821,7 +821,7 @@ thead {
           </label>
           <label>
             Дата:
-            <input type="date" id="dateInput" required />
+            <input type="date" id="dateInput" required>
           </label>
           <label>
             Начало (время):
@@ -972,7 +972,7 @@ document.getElementById("shiftForm").addEventListener("submit", function(event) 
     event.preventDefault();
     console.log("✅ Форма отправлена, обработка началась...");
   
-    let date = document.getElementById("editDate").value;
+    let date = document.getElementById("dateInput").value;
     let time = document.getElementById("timeInput").value;
 
     if (!date || !time) {
@@ -1820,6 +1820,6 @@ function setAlarmForShift() {
     window.location.href = siriShortcutURL;
 }
 </script>
-</body>
 <script src="script.js" defer></script>
+</body>
 </html>
