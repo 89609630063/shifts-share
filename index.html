@@ -901,72 +901,7 @@ function saveShiftsToLocalStorage() {
     sendShiftsToBot(shifts);
 }
 // БОТ 
-const API_URL = "https://shift-schedule-server-production.up.railway.app";
 
-function saveShiftsToServer() {
-    fetch(API_URL, { 
-function sendShiftsToBot(shifts) {
-    console.log("📤 Отправка смен в бота:", shifts);
-    fetch(`${API_URL}/api/shifts`, { 
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shifts })
-    })
-    .then(response => response.json())
-    .then(data => console.log("✅ Смены сохранены на сервере", data))
-    .catch(error => console.error("❌ Ошибка сохранения", error));
-}
-function loadShiftsFromServer() {
-    fetch(API_URL)
-    .then(response => response.json())
-    .then(data => {
-        shifts = data;
-        console.log("📥 Загружены смены с сервера:", shifts);
-        renderShiftsTable();
-    })
-    .catch(error => console.error("❌ Ошибка загрузки смен", error));
-    .then(data => console.log("✅ Бот обновил смены:", data))
-    .catch(error => console.error("❌ Ошибка отправки смен:", error));
-}
-// Загружаем смены при старте сайта
-
-    function loadShifts() {
-      const shiftsJSON = localStorage.getItem('shifts');
-      if (shiftsJSON) {
-        shifts = JSON.parse(shiftsJSON);
-      } else {
-        shifts = [];
-      }
-    }
-    function loadShifts() {
-    const shiftsJSON = localStorage.getItem("shifts");
-    if (shiftsJSON) {
-        shifts = JSON.parse(shiftsJSON);
-    } else {
-        shifts = [];
-    }
-    // Обновляем интерфейс
-    renderShiftsTable();
-}
-document.getElementById("shiftForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
-    let date = document.getElementById("dateInput").value;
-    let time = document.getElementById("timeInput").value;
-    if (!date || !time) {
-        alert("Введите дату и время смены!");
-        return;
-    }
-    document.addEventListener("DOMContentLoaded", () => {
-    const dateInput = document.getElementById("dateInput");
-    console.log(dateInput.value); // Теперь будет работать корректно
-});
-    // Добавляем смену в массив
-    shifts.push({ date, time });
-    // Сохраняем смену
-    saveShiftsToLocalStorage();
-    // Очищаем форму после добавления смены
-    document.getElementById("shiftForm").reset();
-});
     // Для удобства: сколько часов в каждом типе смены
     function computeHours(shiftType) {
       switch (shiftType) {
