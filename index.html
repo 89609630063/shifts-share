@@ -982,7 +982,7 @@ function sendShiftsToBot() {
 document.getElementById("shiftForm").addEventListener("submit", function(event) {
     event.preventDefault();
     console.log("✅ Форма отправлена, обработка началась...");
-    let date = document.getElementById("editDate").value;
+    let date = document.getElementById("dateInput").value;
     let time = document.getElementById("timeInput").value;
 
     if (!date || !time) {
