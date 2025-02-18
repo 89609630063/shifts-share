@@ -2,14 +2,14 @@ const GITHUB_USER = "89609630063"; // Твой GitHub username
 const REPO_NAME = "shifts-data"; // Имя репозитория
 const FILE_PATH = "shifts.json";
 
-// НЕ ХРАНИ ТОКЕН В КОДЕ!!! Должен загружаться из GitHub Secrets или .env
+// ❌ НЕ ВСТАВЛЯЙ ТОКЕН В КОД! Используй Secrets.
 const GIT_TOKEN = "ТОКЕН_ИЗ_GITHUB"; 
 
 async function updateShiftsOnGitHub(shifts) {
     const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
 
     try {
-        // 1️⃣ Получаем текущий SHA файла (GitHub требует SHA при обновлении)
+        // 1️⃣ Получаем SHA текущего файла (GitHub требует SHA при обновлении)
         const response = await fetch(url, {
             headers: { "Authorization": `token ${GIT_TOKEN}` }
         });
