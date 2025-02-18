@@ -1,29 +1,46 @@
 const GITHUB_USER = "89609630063"; // Твой GitHub username
 const REPO_NAME = "shifts-data"; // Имя репозитория
 const FILE_PATH = "shifts.json";
-const GIT_TOKEN = "ТОКЕН_ИЗ_GITHUB_SECRETS"; // ❌ НЕ ХРАНИ В КОДЕ!!!
 
+// НЕ ХРАНИ ТОКЕН В КОДЕ!!! Должен загружаться из GitHub Secrets или .env
+const GIT_TOKEN = "ТОКЕН_ИЗ_GITHUB"; 
 
 async function updateShiftsOnGitHub(shifts) {
-    const url = `https://api.github.com/repos/89609630063/shifts-data/dispatches`;
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
 
     try {
+        // 1️⃣ Получаем текущий SHA файла (GitHub требует SHA при обновлении)
         const response = await fetch(url, {
-            method: "POST",
+            headers: { "Authorization": `token ${GIT_TOKEN}` }
+        });
+
+        let sha = "";
+        if (response.ok) {
+            const fileData = await response.json();
+            sha = fileData.sha; // Получаем SHA файла, если он существует
+        }
+
+        // 2️⃣ Кодируем JSON в Base64
+        const newContent = btoa(unescape(encodeURIComponent(JSON.stringify(shifts, null, 2))));
+
+        // 3️⃣ Обновляем файл на GitHub
+        const updateResponse = await fetch(url, {
+            method: "PUT",
             headers: {
-                "Accept": "application/vnd.github.everest-preview+json",
+                "Authorization": `token ${GIT_TOKEN}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                event_type: "update-shifts",
-                client_payload: { shifts }
+                message: "Обновление смен",
+                content: newContent,
+                sha
             })
         });
 
-        if (response.ok) {
-            console.log("✅ Запрос в GitHub Actions отправлен!");
+        if (updateResponse.ok) {
+            console.log("✅ Смены успешно обновлены на GitHub!");
         } else {
-            console.error("❌ Ошибка при отправке в GitHub:", await response.text());
+            console.error("❌ Ошибка при обновлении GitHub:", await updateResponse.text());
         }
     } catch (error) {
         console.error("❌ Ошибка сети:", error);
