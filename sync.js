@@ -1,7 +1,7 @@
-const GITHUB_USER = "ТВОЙ_GITHUB_ЮЗЕР"; // Например, "myusername"
+const GITHUB_USER = "89609630063"; // Например, "myusername"
 const REPO_NAME = "shifts-data"; // Твой репозиторий
 const FILE_PATH = "shifts.json";
-const GITHUB_TOKEN = "ТВОЙ_ТОКЕН"; // Твой API Token (не храни в коде в продакшене!)
+const GIT_TOKEN = process.env.GIT_TOKEN;
 
 async function updateShiftsOnGitHub(shifts) {
     const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
@@ -9,7 +9,7 @@ async function updateShiftsOnGitHub(shifts) {
     try {
         // 1️⃣ Получаем текущий SHA-файл (GitHub требует SHA при обновлении)
         const response = await fetch(url, {
-            headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+            headers: { "Authorization": `token ${GIT_TOKEN}` }
         });
         const fileData = await response.json();
         const sha = fileData.sha; 
@@ -21,7 +21,7 @@ async function updateShiftsOnGitHub(shifts) {
         const result = await fetch(url, {
             method: "PUT",
             headers: {
-                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Authorization": `token ${GIT_TOKEN}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
