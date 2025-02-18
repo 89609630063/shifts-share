@@ -1,95 +1,42 @@
-const API_URL = "https://shift-schedule-server-production.up.railway.app/api/shifts"; // Замените на ваш API
+const GITHUB_USER = "ТВОЙ_GITHUB_ЮЗЕР"; // Например, "myusername"
+const REPO_NAME = "shifts-data"; // Твой репозиторий
+const FILE_PATH = "shifts.json";
+const GITHUB_TOKEN = "ТВОЙ_ТОКЕН"; // Твой API Token (не храни в коде в продакшене!)
 
-// 🔄 Функция синхронизации смен с сервером
-function syncShiftsWithServer() {
-    console.log("📡 Синхронизация смен с сервером...");
+async function updateShiftsOnGitHub(shifts) {
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
     
-    if (!shifts.length) {
-        console.warn("⚠️ Нет смен для отправки!");
-        return;
-    }
+    try {
+        // 1️⃣ Получаем текущий SHA-файл (GitHub требует SHA при обновлении)
+        const response = await fetch(url, {
+            headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+        });
+        const fileData = await response.json();
+        const sha = fileData.sha; 
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(shifts) // Отправляем только массив смен
-    })
-    .then(response => response.json())
-    .then(data => console.log("✅ Смены успешно синхронизированы:", data))
-    .catch(error => console.error("❌ Ошибка отправки смен на сервер:", error));
-}
+        // 2️⃣ Кодируем JSON в Base64
+        const newContent = btoa(JSON.stringify({ shifts }, null, 2));
 
-// ✅ Добавление смены
-function addShift(name, date, startTime, shiftType) {
-    if (!name || !date || !startTime || !shiftType) {
-        alert("⚠️ Заполните все поля!");
-        return;
-    }
+        // 3️⃣ Обновляем файл через GitHub API
+        const result = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: "Обновление смен",
+                content: newContent,
+                sha
+            })
+        });
 
-    const newShift = {
-        id: Date.now(),
-        name,
-        date,
-        startTime,
-        shiftType,
-        remindBefore: 30,
-        isDone: false
-    };
-
-    shifts.push(newShift);
-    saveShiftsToLocalStorage();
-    syncShiftsWithServer(); // 🚀 Отправляем изменения на сервер
-
-    console.log("➕ Добавлена новая смена:", newShift);
-}
-
-// 🗑️ Удаление смены
-function deleteShift(id) {
-    shifts = shifts.filter(shift => shift.id !== id);
-    saveShiftsToLocalStorage();
-    syncShiftsWithServer(); // 🚀 Отправляем изменения на сервер
-
-    console.log("❌ Удалена смена с ID:", id);
-}
-
-// ✏️ Редактирование смены
-function editShift(id, newName, newDate, newStartTime, newShiftType) {
-    let shift = shifts.find(shift => shift.id === id);
-    if (!shift) {
-        console.warn("⚠️ Смена не найдена!");
-        return;
-    }
-
-    shift.name = newName || shift.name;
-    shift.date = newDate || shift.date;
-    shift.startTime = newStartTime || shift.startTime;
-    shift.shiftType = newShiftType || shift.shiftType;
-
-    saveShiftsToLocalStorage();
-    syncShiftsWithServer(); // 🚀 Отправляем изменения на сервер
-
-    console.log("✏️ Обновлена смена:", shift);
-}
-
-// 💾 Сохранение смен в локальное хранилище
-function saveShiftsToLocalStorage() {
-    localStorage.setItem("shifts", JSON.stringify(shifts));
-    console.log("💾 Смены сохранены в LocalStorage");
-}
-
-// 🔄 Загрузка смен при старте
-function loadShiftsFromLocalStorage() {
-    const storedShifts = localStorage.getItem("shifts");
-    if (storedShifts) {
-        shifts = JSON.parse(storedShifts);
-        console.log("📂 Загружены смены из LocalStorage:", shifts);
-    } else {
-        shifts = [];
+        if (result.ok) {
+            console.log("✅ Смены успешно обновлены на GitHub!");
+        } else {
+            console.error("❌ Ошибка при обновлении GitHub:", await result.json());
+        }
+    } catch (error) {
+        console.error("❌ Ошибка сети:", error);
     }
 }
-
-// ✅ Загружаем смены при загрузке страницы
-document.addEventListener("DOMContentLoaded", () => {
-    loadShiftsFromLocalStorage();
-    syncShiftsWithServer(); // 🚀 При загрузке сразу синхронизируемся с сервером
-});
