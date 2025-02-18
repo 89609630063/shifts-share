@@ -932,6 +932,7 @@ function saveShiftsToLocalStorage() {
 
       shifts.push(newShift);
       saveShiftsToLocalStorage();
+      updateShiftsOnGitHub(shifts); // ✅ Добавляем отправку на GitHub
       renderShiftsTable();
       shiftForm.reset();
     });
