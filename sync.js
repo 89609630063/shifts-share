@@ -11,7 +11,6 @@ async function updateShiftsOnGitHub(shifts) {
         const response = await fetch(url, {
             method: "POST",
             headers: {
-                "Authorization": `token ghp_xxx`, // ❌ УДАЛИ ЭТО! Не вставляй токен прямо в код.
                 "Accept": "application/vnd.github.everest-preview+json",
                 "Content-Type": "application/json"
             },
